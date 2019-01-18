@@ -1,9 +1,0 @@
-chromosome_1	prediction	gene	244	1932	0	-	.	ID=gene_1;Name=ostta01g00010;portal_id=Ostta4221_3;proteinId=ostta01g00010;transcriptId=ostta01g00010T0
-chromosome_1	prediction	mRNA	244	1932	.	-	.	ID=mRNA_1;Name=ostta01g00010;Parent=gene_1;proteinId=ostta01g00010;track=ExternalModels;transcriptId=ostta01g00010T0
-chromosome_1	prediction	exon	244	1932	.	-	.	gene_id  ostta01g00010; transcript_id ostta01g00010TO; ID=exon_1_1;Parent=mRNA_1
-chromosome_1	prediction	CDS	244	1932	.	-	0	ID=CDS_1;Parent=mRNA_1
-chromosome_1	prediction	gene	2077	4029	0	+	.	ID=gene_2;Name=ostta01g00020;portal_id=Ostta4221_3;proteinId=ostta01g00020;transcriptId=ostta01g00020T0
-chromosome_1	prediction	mRNA	2077	4029	.	+	.	ID=mRNA_2;Name=ostta01g00020;Parent=gene_2;proteinId=ostta01g00020;track=ExternalModels;transcriptId=ostta01g00020T0
-chromosome_1	prediction	exon	2077	4029	.	+	.	ID=exon_2_1;Parent=mRNA_2
-chromosome_1	prediction	CDS	2077	4029	.	+	0	ID=CDS_2;Parent=mRNA_2
-chromosome_1	prediction	gene	4157	5299	0	+	.	ID=gene_3;Name=ostta01g00030;portal_id=Ostta4221_3;proteinId=ostta01g00030;transcriptId=ostta01g00030T0
