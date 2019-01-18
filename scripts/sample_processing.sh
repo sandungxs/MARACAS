@@ -7,36 +7,42 @@
 #$ -cwd
 #$ -j yes
 
+## Name input parameters
+SAMPLE_FOLDER=$1
+ACC_NUMBER=$2
+INDEX=$3
+ANNOTATION=$4
+
 ## Downloading sample file
-cd /home/<grupo>/<exp>/samples/sample<N> 
-fastq-dump --split-files <accession_number_SRA el que pone RUN> 
+cd ${SAMPLE_FOLDER} 
+fastq-dump --split-files ${ACC_NUMBER}
 
 ## Sample quality control and read mapping to reference genome
-if [ -f <accession_sra>_2.fastq ]
+if [ -f ${ACC_NUMBER}_2.fastq ]
 then
-   fastqc <accession_sra>_1.fastq
-   fastqc <accession_sra>_2.fastq
+   fastqc ${ACC_NUMBER}_1.fastq
+   fastqc ${ACC_NUMBER}_2.fastq
 
-   hisat2 --dta -x ../../genome/index -1 <accession_sra>_1.fastq -2 <accession_sra>_2.fastq -S sample<N>.sam
+   hisat2 --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq -2 ${ACC_NUMBER}_2.fastq -S ${ACC_NUMBER}.sam
 else
-   fastqc <accession_sra>_1.fastq
+   fastqc ${ACC_NUMBER}_1.fastq
 
-   hisat2 --dta -x ../../genome/index -U <accession_sra>_1.fastq -S sample<N>.sam
+   hisat2 --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq -S ${ACC_NUMBER}.sam
 fi
 
 ## Generting sorted bam file
-samtools sort -o sample<N>.bam sample<N>.sam
-rm sample<N>.sam
+samtools sort -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
+rm ${ACC_NUMBER}.sam
 rm *.fastq
-samtools index sample<N>.bam
-bamCoverage -bs 10 --normalizeUsing CPM --bam sample<N>.bam -o sample<N>.bw
+samtools index ${ACC_NUMBER}.bam
+bamCoverage -bs 10 --normalizeUsing CPM --bam ${ACC_NUMBER}.bam -o ${ACC_NUMBER}.bw
 
 ## Transcript assembly
-stringtie -G ../../annotation/annotation.gtf -o sample<N>.gtf -l sample<N> sample<N>.bam
+stringtie -G $ANNOTATION -o ${ACC_NUMBER}.gtf -l ${ACC_NUMBER} ${ACC_NUMBER}.bam
 
 ## Preparing merge list file for transcriptome merging
-echo /home/<grupo>/<exp>/samples/sample<N>/sample<N>.gtf >> ../../results/merge_list.txt
+echo ${SAMPLE_FOLDER}/${ACC_NUMBER}.gtf >> ../../results/merge_list.txt
 
 ## Gene Expression Quantification
-stringtie -e -B -G ../../annotation/annotation.gtf -o sample<N>.gtf sample<N>.bam
+stringtie -e -B -G $ANNOTATION -o ${ACC_NUMBER}.gtf ${ACC_NUMBER}.bam
 
