@@ -1,0 +1,70 @@
+#! /bin/bash
+
+## Authors: Francisco J. Romero-Campero
+##          Ana Belen Romero-Losada
+## Contact: Francisco J. Romero-Campero - fran@us.es
+
+## Load parameters from file
+
+## Input file name
+PARAMS=$1
+
+## Load installation directory
+INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
+
+## Load working directory
+WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
+
+## Load main folder
+MAIN_FOLDER=$(grep main_folder: $PARAMS | awk '{ print $2 }')
+
+## Load number of samples
+NUM_SAMPLES=$(grep number_of_samples: $PARAMS | awk '{ print $2 }')
+
+## Load microalgae
+MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
+
+## Load accession numbers for each sample
+ACC_SAMPLES=()
+i=0
+j=1
+
+while [ $i -lt ${NUM_SAMPLES} ]
+do   
+   ACC_SAMPLES[$i]=$(grep acc_sample$j $PARAMS | awk '{ print $2 }')
+   ((i++))
+   ((j++))
+done
+
+echo ${ACC_SAMPLES[@]}
+
+## Build working directory
+## Access working directory
+cd $WD
+
+## Create and access main folder
+mkdir ${MAIN_FOLDER}
+cd ${MAIN_FOLDER}
+
+## Create subfolders
+mkdir genome annotation samples results
+
+## Create folder for each sample
+cd samples
+i=1
+
+while [ $i -le ${NUM_SAMPLES} ]
+do
+	mkdir sample_$i
+	((i++))
+done
+
+## Parallel sample processing
+i=1
+
+while [ $i -le ${NUM_SAMPLES}  ]
+do
+   j=$(( $i - 1 ))
+   qsub ${INS_DIR}/sample_processing.sge $i ${ACC_SAMPLES[$j]} $WD/${MAIN_FOLDER}/samples/sample_$i $WD/${MAIN_FOLDER}/genome/index $WD/${MAIN_FOLDER}/annotation/annotation.gtf ${NUM_SAMPLES} ${INS_DIR} $WD ${MAIN_FOLDER}
+done
+ 

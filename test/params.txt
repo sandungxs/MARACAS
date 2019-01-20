@@ -1,0 +1,10 @@
+installation_directory: /home/fran/opt/rnaseq_pipeline
+working_directory: /home/fran/tmp
+main_folder: GSE78154
+number_of_samples: 4
+url_genome: ftp://ftp.ensemblgenomes.org/pub/release-41/plants/fasta/solanum_lycopersicum/dna/Solanum_lycopersicum.SL2.50.dna.toplevel.fa.gz
+url_annotation: ftp://ftp.ensemblgenomes.org/pub/release-41/plants/gtf/solanum_lycopersicum/Solanum_lycopersicum.SL2.50.41.chr.gtf.gz
+acc_sample1: SRR3181809
+acc_sample2: SRR3181810
+acc_sample3: SRR3181811
+acc_sample4: SRR3181812
