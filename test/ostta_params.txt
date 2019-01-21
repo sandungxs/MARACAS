@@ -1,0 +1,11 @@
+installation_directory: /home/fran/research/MARACAS/
+working_directory: /home/fran/tmp
+microalgae: ostreococcus_tauri
+main_folder: ostta_test
+number_of_samples: 6
+acc_sample1: SRR3099585
+acc_sample2: SRR3099586
+acc_sample3: SRR3099587
+acc_sample4: SRR3105699
+acc_sample5: SRR3105698
+acc_sample6: SRR3105697

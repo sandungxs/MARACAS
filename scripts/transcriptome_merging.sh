@@ -1,21 +1,20 @@
-## This work is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0$
-## Author: Francisco J. Romero-Campero
-## Date: November 2018
-## Email: fran@us.es
+## Authors: Francisco J. Romero-Campero
+##          Ana Belen Romero-Losada
+## Contact: Francisco J. Romero-campero - fran@us.es
 
 #$ -S /bin/bash
-#$ -N merge
 #$ -V
 #$ -cwd
 #$ -j yes
-#$ -o merge
 
+EXP_FOLDER=$1
+ANNOTATION=$2
 
-## Accessing results folder
-cd /home/<grupo>/<exp>/results
+## Access results folder
+cd ${EXP_FOLDER}/results
 
 ## Merging sample transcriptomes
-stringtie --merge -G ../annotation/annotation.gtf -o stringtie_merged.gtf merge_list.txt
+stringtie --merge -G $ANNOTATION -o stringtie_merged.gtf merge_list.txt
 
 ## Comparing our assembly with the reference
-gffcompare -r ../annotation/annotation.gtf -G -o comparison stringtie_merged.gtf
+gffcompare -r $ANNOTATION -G -o comparison stringtie_merged.gtf

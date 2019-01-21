@@ -9,36 +9,35 @@
 ## Input file name
 PARAMS=$1
 
+echo "Loading parameters from file " $PARAMS " ... "
+
 ## Load installation directory
 INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
-
 ## Load working directory
 WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
-
 ## Load main folder
 MAIN_FOLDER=$(grep main_folder: $PARAMS | awk '{ print $2 }')
-
 ## Load number of samples
 NUM_SAMPLES=$(grep number_of_samples: $PARAMS | awk '{ print $2 }')
-
 ## Load microalgae
 MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
-
 ## Load accession numbers for each sample
 ACC_SAMPLES=()
-i=0
-j=1
-
-while [ $i -lt ${NUM_SAMPLES} ]
+for  i in `seq 0 ${NUM_SAMPLES}`
 do   
-   ACC_SAMPLES[$i]=$(grep acc_sample$j $PARAMS | awk '{ print $2 }')
-   ((i++))
-   ((j++))
+   ACC_SAMPLES[$i]=$(grep acc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
 done
 
-echo ${ACC_SAMPLES[@]}
+echo "The following parameters were loaded."
+echo " - Installation directory: " $INS_DIR
+echo " - Working directory: " $WD
+echo " - Main folder: " $MAIN_FOLDER
+echo " - Number of samples: " $NUM_SAMPLES
+echo " - Microalgae: " $MICROALGAE
+echo " - Sample accession numbers: " ${ACC_SAMPLES[@]}
+echo " "
 
-## Build working directory
+echo "Generating working directory."
 ## Access working directory
 cd $WD
 
@@ -47,24 +46,22 @@ mkdir ${MAIN_FOLDER}
 cd ${MAIN_FOLDER}
 
 ## Create subfolders
-mkdir genome annotation samples results
+mkdir samples results logs
 
 ## Create folder for each sample
 cd samples
-i=1
 
-while [ $i -le ${NUM_SAMPLES} ]
+for i in `seq 1 ${NUM_SAMPLES}`
 do
-	mkdir sample_$i
-	((i++))
+   mkdir sample_$i
 done
+echo "Working directory generated"
+echo " "
 
 ## Parallel sample processing
-i=1
-
-while [ $i -le ${NUM_SAMPLES}  ]
+echo "Parallel sample processing"
+for  i in `seq 0 $((${NUM_SAMPLES} - 1))`
 do
-   j=$(( $i - 1 ))
-   qsub ${INS_DIR}/sample_processing.sge $i ${ACC_SAMPLES[$j]} $WD/${MAIN_FOLDER}/samples/sample_$i $WD/${MAIN_FOLDER}/genome/index $WD/${MAIN_FOLDER}/annotation/annotation.gtf ${NUM_SAMPLES} ${INS_DIR} $WD ${MAIN_FOLDER}
+   echo "- Sample " $(($i + 1)) " processing submitted to queue"
+   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${ACC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER}
 done
- 
