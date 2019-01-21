@@ -58,6 +58,6 @@ PROCESSED_SAMPLES=$(wc -l ../../logs/blackboard.txt | awk '{print $1}')
 ## Submit scripts for transcriptome merging and differential gene expression 
 if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
 then
-   qsub -o ${EXP_FOLDER}/logs/transcriptome_merging $INS/scritps/transcriptome_merging.sh ${EXP_FOLDER} $ANNOTATION
+   qsub -o ${EXP_FOLDER}/logs/transcriptome_merging $INS/scripts/transcriptome_merging.sh ${EXP_FOLDER} $ANNOTATION
 fi
 
