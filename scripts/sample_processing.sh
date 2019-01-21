@@ -53,7 +53,7 @@ stringtie -e -B -G $ANNOTATION -o ${ACC_NUMBER}.gtf ${ACC_NUMBER}.bam
 echo "SAMPLE " ${ACC_NUMBER} " DONE" >> ../../logs/blackboard.txt
 
 ## Count number of line in the blackboard to check the number of processed samples
-PROCESSED_SAMPLES=$(wc -l ../../blackboard.txt | awk '{print $1}')
+PROCESSED_SAMPLES=$(wc -l ../../logs/blackboard.txt | awk '{print $1}')
 
 ## Submit scripts for transcriptome merging and differential gene expression 
 if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
