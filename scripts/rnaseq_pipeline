@@ -23,10 +23,20 @@ NUM_SAMPLES=$(grep number_of_samples: $PARAMS | awk '{ print $2 }')
 MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
 ## Load accession numbers for each sample
 ACC_SAMPLES=()
-for  i in `seq 0 ${NUM_SAMPLES}`
+for i in `seq 0 $((${NUM_SAMPLES} - 1))`
 do   
    ACC_SAMPLES[$i]=$(grep acc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
 done
+## Load control condition name
+CONTROL_COND=$(grep control_condition_name: $PARAMS | awk '{ print $2 }')
+## Load experimental condition name
+EXPERIMENTAL_COND=$(grep experimental_condition_name: $PARAMS | awk '{ print $2 }')
+## Load experimental design consisting of sample conditions
+EXPERIMENTAL_DESIGN=()
+for i in `seq 0 $((${NUM_SAMPLES} - 1))`
+do
+   EXPERIMENTAL_DESIGN[$i]=$(grep condition_sample$(($i + 1)) $PARAMS | awk '{ print $2 }')
+done 
 
 echo "The following parameters were loaded."
 echo " - Installation directory: " $INS_DIR
@@ -35,6 +45,9 @@ echo " - Main folder: " $MAIN_FOLDER
 echo " - Number of samples: " $NUM_SAMPLES
 echo " - Microalgae: " $MICROALGAE
 echo " - Sample accession numbers: " ${ACC_SAMPLES[@]}
+echo " - Control condition name: " ${CONTROL_COND}
+echo " - Experimental condition name: " ${EXPERIMENTAL_COND} 
+echo " - Experimental design: " ${EXPERIMENTAL_DESIGN[@]}
 echo " "
 
 echo "Generating working directory."
@@ -57,6 +70,15 @@ do
 done
 echo "Working directory generated"
 echo " "
+
+## Create experimental design file
+cd $WD/${MAIN_FOLDER}/samples
+
+echo "sample,condition" > experimental_design.csv
+for i in `seq 0 $((${NUM_SAMPLES} -1))`
+do
+   echo "sample"_$(($i + 1)),${EXPERIMENTAL_DESIGN[$i]} >> experimental_design.csv
+done
 
 ## Parallel sample processing
 echo "Parallel sample processing"

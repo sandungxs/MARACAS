@@ -3,9 +3,17 @@ working_directory: /home/fran/tmp
 microalgae: ostreococcus_tauri
 main_folder: ostta_test
 number_of_samples: 6
+control_condition_name: iron
+experimental_condition_name: no_iron
 acc_sample1: SRR3099585
+condition_sample1: iron
 acc_sample2: SRR3099586
+condition_sample2: iron
 acc_sample3: SRR3099587
+condition_sample3: iron
 acc_sample4: SRR3105699
+condition_sample4: no_iron
 acc_sample5: SRR3105698
+condition_sample5: no_iron
 acc_sample6: SRR3105697
+condition_sample6: no_iron
