@@ -2,10 +2,20 @@
 ##          Ana Belén Romero-Losada
 ## Contact: Francisco J. Romero-Campero - email: fran@us.es
 
-working.directory <- "/home/fran/tmp/ostta_test/samples/"
-control.condition <- "iron"
-experimental.condition <- "no_iron"
-  
+# working.directory <- "/home/fran/tmp/ostta_test/samples/"
+# control.condition <- "iron"
+# experimental.condition <- "no_iron"
+# fc.threshold <- 2
+# q.val.threshold <- 0.05
+
+args <- commandArgs(trailingOnly=TRUE)
+
+working.directory <- args[1]
+control.condition <- args[2]
+experimental.condition <- args[3]
+fc.threshold <- args[4]
+q.val.threshold <- args[5]
+
 setwd(working.directory)
 
 ## Load libraries
@@ -53,7 +63,10 @@ head(gene.expression)
 dim(gene.expression)
 
 ## Previsualizamos la similitud entre las réplicas
-plot(log2(gene.expression[,1]+1),log2(gene.expression[,2]+1),pch=19,cex=0.7,xlab="col0_1",ylab=substitute(italic("col0_2")),cex.lab=1.25)
+
+
+
+plot(log2(gene.expression[,1]+1),log2(gene.expression[,2]+1),pch=19,cex=0.7,xlab=sample.labels[1],ylab=sample.labels[2],cex.lab=1.25)
 plot(log2(gene.expression[,2]+1),log2(gene.expression[,3]+1),pch=19,cex=0.7,xlab="col0_1",ylab=substitute(italic("col0_2")),cex.lab=1.25)
 
 plot(log2(gene.expression[,3]+1),log2(gene.expression[,4]+1),pch=19,cex=0.7,xlab="abc_1",ylab=substitute(italic("abc_2")),cex.lab=1.25)
@@ -61,13 +74,13 @@ plot(log2(gene.expression[,3]+1),log2(gene.expression[,4]+1),pch=19,cex=0.7,xlab
 
 ## Construimos un boxplot para comprobar que las distribuciones globales de las
 ## muestras son similares y comparables.
-boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5)
+boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,las=2,outline=F)
 
 ## En muchas ocasiones no será necesario realizar ninguna normalización. En cualquier caso
 ## las instrucciones que siguen realizan una normalización de cuartil superior. Esta es la técnica de
 ## normalización más comúnmente usada.
 
-## Cálculo de los cuartiles superiores para cada columna.
+## Apply upper quantile normalization
 upper.quantiles <- vector(mode="numeric",length=ncol(gene.expression))
 
 for(i in 1:ncol(gene.expression))
@@ -75,15 +88,14 @@ for(i in 1:ncol(gene.expression))
   upper.quantiles[i] <- quantile(gene.expression[,i],probs=0.75)
 }
 
-## División de cada columna por su cuartil superior. 
 for(i in 1:ncol(gene.expression))
 {
   gene.expression[,i] <- gene.expression[,i] / upper.quantiles[i]
 }
 
-## Transformación logarítmica y visualización de los datos normlaizados.
+## Log2 transformation
 log.gene.expression <- log2(gene.expression+1)
-boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F)
+boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F,las=2)
 
 ## Alternativamente la normalización se puede realizar con el paquete normalyzer. 
 # ## En este punto ballgown no realiza ninguna normalización de los datos. 
@@ -135,44 +147,53 @@ plot(col0,abc,pch=19,cex=0.7,xlab="Col0",ylab=substitute(italic("abc")),cex.lab=
 library(limma)
 
 ## Especificamos el diseño experimental
+factor.experimental.design <- vector(mode="numeric",length=nrow(experimental.design))
+factor.experimental.design[control.indeces] <- 1
+factor.experimental.design[experimental.indeces] <- 2
 
-experimental.design <- model.matrix(~ -1+factor(c(1,1,2,2)))
-colnames(experimental.design) <- c("col0","abc")
+limma.experimental.design <- model.matrix(~ -1+factor(factor.experimental.design))
+colnames(limma.experimental.design) <- c(control.condition,experimental.condition)
 
 ##A continuación, ajustamos la estimación de los niveles de expresión de cada
 ##gen a un modelo lineal teniendo en cuenta el diseño experimental. Este paso
 ##fundamentalmente se calcula la media de las réplicas en cada condición.
 
-linear.fit <- lmFit(log.gene.expression, experimental.design)
+linear.fit <- lmFit(log.gene.expression, limma.experimental.design)
 
 ##Para especificar los constrastes a realizar utilizamos la función
 ##*makeContrasts* que recibe como entrada los contrastes a realizar separados 
 ##por comas y especificados con los nombres de las dos condiciones 
 ##correspondientes separadas por un guión -. También recibe el argumento 
 ##levels, un vector con el nombre de las condiciones:
-
-contrast.matrix <- makeContrasts(abc-col0,levels=c("col0","abc"))
+contrast.matrix <- makeContrasts(contrasts = paste(experimental.condition,control.condition,sep="-"),
+                                 levels=c(control.condition,experimental.condition))
 
 ##Calculamos el fold-change y los p-valores correspondientes para cada gen en
 ##cada uno de los constrastes especificados utilizando las funciones *constrasts.fit* 
 ##y *eBayes*.
-
 contrast.linear.fit <- contrasts.fit(linear.fit, contrast.matrix)
 contrast.results <- eBayes(contrast.linear.fit)
 
-nrow(log.gene.expression)
+de.results <- topTable(contrast.results, number=7507,coef=1,sort.by="logFC")
+head(de.results)
 
-col0.abc <- topTable(contrast.results, number=7507,coef=1,sort.by="logFC")
-head(col0.abc)
+fold.change <- de.results$logFC
+q.values <- de.results$adj.P.Val
+genes.ids <- rownames(de.results)
 
-fold.change <- col0.abc$logFC
-genes.ids <- rownames(col0.abc)
+activated.genes <- genes.ids[fold.change > log2(fc.threshold)]
+repressed.genes <- genes.ids[fold.change < - log2(fc.threshold)]
 
-activated.genes <- genes.ids[fold.change > 1]
-repressed.genes <- genes.ids[fold.change < - 1]
+write(x = activated.genes, file = "activated_genes.txt")
+write(x = repressed.genes, file = "repressed_genes.txt")
 
 length(activated.genes)
 length(repressed.genes)
+
+plot(fold.change,-log10(q.values))
+lines(x=c(log2(fc.threshold),log2(fc.threshold)),y=c(-2,2))
+lines(x=c(-log2(fc.threshold),-log2(fc.threshold)),y=c(-2,2))
+lines(x=c(-10,10),y=c(-log10(q.val.threshold),-log10(q.val.threshold)))
 
 ## Código para desarrollar una función gráfico de barras
 
