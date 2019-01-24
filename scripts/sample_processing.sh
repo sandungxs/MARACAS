@@ -15,6 +15,10 @@ ANNOTATION=$4
 NUM_SAMPLES=$5
 INS=$6
 EXP_FOLDER=$7
+CONTROL=$8
+EXPERIMENTAL=$9
+FOLD_CHANGE=${10}
+Q_VALUE=${11}
 
 ## Downloading sample file
 cd ${SAMPLE_FOLDER} 
@@ -59,5 +63,6 @@ PROCESSED_SAMPLES=$(wc -l ../../logs/blackboard.txt | awk '{print $1}')
 if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
 then
    qsub -o ${EXP_FOLDER}/logs/transcriptome_merging $INS/scripts/transcriptome_merging.sh ${EXP_FOLDER} $ANNOTATION
+   Rscript $INS/scripts/DE_analysis.R ${EXP_FOLDER}/samples $CONTROL $EXPERIMENTAL $FOLD_CHANGE $Q_VALUE
 fi
 

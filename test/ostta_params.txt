@@ -17,3 +17,5 @@ acc_sample5: SRR3105698
 condition_sample5: no_iron
 acc_sample6: SRR3105697
 condition_sample6: no_iron
+fold_change: 2
+q_value: 1

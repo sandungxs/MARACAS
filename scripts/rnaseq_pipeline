@@ -37,6 +37,9 @@ for i in `seq 0 $((${NUM_SAMPLES} - 1))`
 do
    EXPERIMENTAL_DESIGN[$i]=$(grep condition_sample$(($i + 1)) $PARAMS | awk '{ print $2 }')
 done 
+## Load parameters for differential analysis
+FOLD_CHANGE=$(grep fold_change: $PARAMS | awk '{ print $2 }')
+Q_VALUE=$(grep q_value: $PARAMS | awk '{ print $2 }')
 
 echo "The following parameters were loaded."
 echo " - Installation directory: " $INS_DIR
@@ -85,5 +88,5 @@ echo "Parallel sample processing"
 for  i in `seq 0 $((${NUM_SAMPLES} - 1))`
 do
    echo "- Sample " $(($i + 1)) " processing submitted to queue"
-   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${ACC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER}
+   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${ACC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE}
 done

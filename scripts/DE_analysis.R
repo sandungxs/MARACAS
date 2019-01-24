@@ -2,19 +2,19 @@
 ##          Ana Belén Romero-Losada
 ## Contact: Francisco J. Romero-Campero - email: fran@us.es
 
-working.directory <- "/home/fran/tmp/ostta_test/samples/"
-control.condition <- "iron"
-experimental.condition <- "no_iron"
-fc.threshold <- 2
-q.val.threshold <- 1
+# working.directory <- "/home/fran/tmp/ostta_test/samples/"
+# control.condition <- "iron"
+# experimental.condition <- "no_iron"
+# fc.threshold <- 2
+# q.val.threshold <- 0.05
 
-# args <- commandArgs(trailingOnly=TRUE)
-# 
-# working.directory <- args[1]
-# control.condition <- args[2]
-# experimental.condition <- args[3]
-# fc.threshold <- args[4]
-# q.val.threshold <- args[5]
+args <- commandArgs(trailingOnly=TRUE)
+
+working.directory <- args[1]
+control.condition <- args[2]
+experimental.condition <- args[3]
+fc.threshold <- args[4]
+q.val.threshold <- args[5]
 
 setwd(working.directory)
 
@@ -55,10 +55,11 @@ for(i in 1:nrow(experimental.design))
   }
 }
 
+## Extract basic statistics for the result of each sample processing
+## TODO!!!!!
+
 ## Load results from hisat2 + stringtie
 bg.data <- ballgown(dataDir = ".", samplePattern = "sample", pData=experimental.design)
-bg.data
-sampleNames(bg.data)
 
 ## Extract gene expression and name columns with sample.labels
 gene.expression <- gexpr(bg.data)
@@ -67,39 +68,51 @@ head(gene.expression)
 dim(gene.expression)
 
 ## Scatter plots 
-number.samples <- 4
+number.samples <- nrow(experimental.design)
+png(file="../results/scatter_plots.png",width = 1500,height = 1500)
 par(mfrow=c(number.samples,number.samples))
 for(i in 1:number.samples)
 {
   for(j in 1:number.samples)
   {
     plot(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1),pch=19,cex=0.7,xlab=sample.labels[i],ylab=sample.labels[j],cex.lab=1.25)
-    lines(x=c(-10,100),y=c(-10,100),col="red")
+    lines(x=c(-10,100),y=c(-10,100),col="red",lwd=2)
+    text(x = 0, y =max(c(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)))-2,pos = 4,
+         paste0(round(x = 100*cor(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)),digits=2),"%"),cex=2)
   }
 }
 dev.off()
 
 ## Boxplot before normalization
+png(filename = "../results/boxplot_before_normalization.png")
 boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,las=2,outline=F)
+dev.off()
 
 ## PCA analysis
 pca.gene.expression <- data.frame(colnames(gene.expression),t(gene.expression))
 colnames(pca.gene.expression)[1] <- "condition"
-rownames(pca.gene.expression) <- NULL
 
 res.pca <- PCA(pca.gene.expression, graph = FALSE,scale.unit = TRUE,quali.sup = 1 )
-fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 70))
+png(filename = "../results/pca_analysis_1.png")
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 70),main = "")
+dev.off()
 
-fviz_pca_ind(res.pca, col.ind = experimental.design$condition, pointsize=2, pointshape=21,fill="black",
+png(filename = "../results/pca_analysis_2.png")
+fviz_pca_ind(res.pca, col.ind = experimental.design$condition, 
+             pointsize=2, pointshape=21,fill="black",
              repel = TRUE, 
              addEllipses = TRUE,ellipse.type = "confidence",
-             legend.title="Time points",
-             title="PCA of Circadian Transcriptome in Ostreococcus tauri",
+             legend.title="Conditions",
+             title="Principal Components Analysis",
              show_legend=TRUE,show_guide=TRUE) 
+dev.off()
 
-HCPC(res.pca, nb.clust=2, consol=TRUE, min=2, max=10)    
+## Hierarchical clustering
+res.hcpc <- HCPC(res.pca, graph=FALSE)    
 
-help(HCPC)
+png(filename = "../results/hierarchical_clustering.png")
+plot(res.hcpc, choice ="tree")
+dev.off()
 
 ## Apply upper quantile normalization
 upper.quantiles <- vector(mode="numeric",length=ncol(gene.expression))
@@ -118,7 +131,10 @@ for(i in 1:ncol(gene.expression))
 
 ## Log2 transformation
 log.gene.expression <- log2(gene.expression+1)
+
+png(filename = "../results/boxplot_after_normalization.png")
 boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+dev.off()
 
 ## Alternativamente la normalización se puede realizar con el paquete normalyzer. 
 # ## En este punto ballgown no realiza ninguna normalización de los datos. 
@@ -161,7 +177,6 @@ rownames(mean.expression) <- names(control)
 head(mean.expression)
 
 ## Previsualizamos el efecto de la mutación en un scatterplot.
-dev.off()
 plot(control,experimental,pch=19,cex=0.7,xlab=control.condition,ylab=experimental.condition,cex.lab=1.25)
 
 ##El paquete **limma** (Linear Models for Microarray Analysis) proporciona las 
@@ -196,6 +211,9 @@ fold.change <- de.results$logFC
 q.values <- de.results$adj.P.Val
 genes.ids <- rownames(de.results)
 
+names(fold.change) <- genes.ids
+names(q.values) <- genes.ids
+
 activated.genes <- genes.ids[fold.change > log2(fc.threshold) & q.values < q.val.threshold]
 repressed.genes <- genes.ids[fold.change < - log2(fc.threshold) & q.values < q.val.threshold]
 
@@ -205,36 +223,45 @@ length(repressed.genes)
 write(x = activated.genes, file = "../results/activated_genes.txt")
 write(x = repressed.genes, file = "../results/repressed_genes.txt")
 
+png(filename = "../results/scatter_plot_control_vs_experimental.png")
 plot(control,experimental,pch=19,cex=0.7,col="grey",xlab=control.condition,ylab=experimental.condition,cex.lab=1.25)
 points(control[activated.genes],experimental[activated.genes],pch=19,cex=0.7,col="red")
 points(control[repressed.genes],experimental[repressed.genes],pch=19,cex=0.7,col="blue")
+dev.off()
 
+log10.qval <- -log10(q.values)
 
-plot(fold.change,-log10(q.values),pch=19,cex=0.7,col="grey")
-lines(x=c(log2(fc.threshold),log2(fc.threshold)),y=c(-2,2))
-lines(x=c(-log2(fc.threshold),-log2(fc.threshold)),y=c(-2,2))
-lines(x=c(-10,10),y=c(-log10(q.val.threshold),-log10(q.val.threshold)))
+png(filename = "../results/volcano_plot.png")
+plot(fold.change,log10.qval,pch=19,cex=0.7,col="grey", xlab="Fold Change", ylab="-log10(q-value)",cex.lab=1.5)
+points(fold.change[activated.genes],log10.qval[activated.genes],cex=0.7,col="red",pch=19)
+points(fold.change[repressed.genes],log10.qval[repressed.genes],cex=0.7,col="blue",pch=19)
+dev.off()
 
 ## Código para desarrollar una función gráfico de barras
-
-gen <- activated.genes[2]
+gene <- activated.genes[2]
 
 original.data <- 2^log.gene.expression - 1
 
-expr.1 <- unlist(c(original.data[gen, control.indeces]))
-expr.2 <- unlist(c(original.data[gen, experimental.indeces]))
+control.expr.vals <- unlist(c(original.data[gene, control.indeces]))
+experimental.expr.vals <- unlist(c(original.data[gene, experimental.indeces]))
 
-mean.1 <- mean(expr.1)
-mean.2 <- mean(expr.2)
+mean.control <- mean(control.expr.vals)
+mean.experimental <- mean(experimental.expr.vals)
 
-sd.1 <- sd(expr.1)
-sd.2 <- sd(expr.2)
+sd.control <- sd(control.expr.vals)
+sd.experimental <- sd(experimental.expr.vals)
 
-means <- c(mean.1, mean.2)
-sds <- c(sd.1, sd.2)
+means <- c(mean.control, mean.experimental)
+sds <- c(sd.control, sd.experimental)
 
 arrow.top <- means + sds
 arrow.bottom <- means - sds
 
-xpos <- barplot(means,ylim=c(0,1.5*max(arrow.top)),col=rainbow(2))
-arrows(xpos, arrow.top, xpos, arrow.bottom,code = 3,angle=90,length=0.2)
+png(filename = "../results/barplot.png")
+xpos <- barplot(means,ylim=c(0,1.5*max(arrow.top)),col=c("red","blue"),names.arg = c(control.condition,experimental.condition),ylab="FPKM",cex.lab=1.5,main=gene,cex.main=2)
+arrows(xpos, arrow.top, xpos, arrow.bottom,code = 3,angle=90,length=0.1,lwd=1.5)
+points(rep(xpos[1],length(control.expr.vals))+0.1,control.expr.vals)
+points(rep(xpos[2],length(experimental.expr.vals))+0.1,experimental.expr.vals)
+dev.off()
+
+       
