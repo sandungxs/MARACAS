@@ -13,8 +13,8 @@ args <- commandArgs(trailingOnly=TRUE)
 working.directory <- args[1]
 control.condition <- args[2]
 experimental.condition <- args[3]
-fc.threshold <- args[4]
-q.val.threshold <- args[5]
+fc.threshold <- as.numeric(args[4])
+q.val.threshold <- as.numeric(args[5])
 
 setwd(working.directory)
 
