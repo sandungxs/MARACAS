@@ -1,0 +1,234 @@
+Settings:
+  Output files: "hisat2_index_chlamydomonas_reinhardtii.*.ht2"
+  Line rate: 7 (line is 128 bytes)
+  Lines per side: 1 (side is 128 bytes)
+  Offset rate: 4 (one in 16)
+  FTable chars: 10
+  Strings: unpacked
+  Local offset rate: 3 (one in 8)
+  Local fTable chars: 6
+  Local sequence length: 57344
+  Local sequence overlap between two consecutive indexes: 1024
+  Endianness: little
+  Actual local endianness: little
+  Sanity checking: disabled
+  Assertions: disabled
+  Random seed: 0
+  Sizeofs: void*:8, int:4, long:8, size_t:8
+Input files DNA, FASTA:
+  chlamydomonas_reinhardtii.fa
+Reading reference sizes
+  Time reading reference sizes: 00:00:02
+Calculating joined length
+Writing header
+Reserving space for joined string
+Joining reference sequences
+  Time to join reference sequences: 00:00:01
+  Time to read SNPs and splice sites: 00:00:01
+Generation 0 (107182739 -> 107182739 nodes, 0 ranks)
+COUNTED NEW NODES: 0
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+Generation 1 (107314421 -> 107314421 nodes, 0 ranks)
+COUNTED NEW NODES: 0
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+Generation 2 (107577785 -> 107577785 nodes, 0 ranks)
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+Generation 3 (108104606 -> 108104606 nodes, 0 ranks)
+BUILT FROM_INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+RESIZE NODES: 2
+SORT NODES: 13
+MERGE, UPDATE RANK: 2
+Generation 4 (109159691 -> 108536713 nodes, 81882621 ranks)
+ALLOCATE FROM_TABLE: 1
+BUILD TABLE: 5
+BUILD INDEX: 1
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 2
+MERGEUPDATERANK: 2
+TOTAL TIME: 12
+Generation 5 (108865543 -> 108493538 nodes, 98106864 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+MERGEUPDATERANK: 2
+TOTAL TIME: 10
+Generation 6 (108559794 -> 108542592 nodes, 101162762 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 5
+BUILD INDEX: 1
+COUNTED NEW NODES: 0
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+MERGEUPDATERANK: 2
+TOTAL TIME: 9
+Generation 7 (108621585 -> 108604616 nodes, 103727715 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 5
+BUILD INDEX: 1
+COUNTED NEW NODES: 0
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 8 (108698123 -> 108676398 nodes, 105728449 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+MERGEUPDATERANK: 1
+TOTAL TIME: 9
+Generation 9 (108783730 -> 108750890 nodes, 107086609 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 5
+BUILD INDEX: 1
+COUNTED NEW NODES: 0
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 10 (108866161 -> 108825555 nodes, 107913644 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 0
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 11 (108959725 -> 108906343 nodes, 108436148 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 0
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 12 (109019074 -> 108960188 nodes, 108764343 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 0
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 13 (109027193 -> 108972987 nodes, 108930754 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 1
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 0
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 14 (109006086 -> 108983910 nodes, 108982013 ranks)
+ALLOCATE FROM_TABLE: 0
+BUILD TABLE: 6
+BUILD INDEX: 0
+COUNTED NEW NODES: 0
+COUNTED TEMP NODES: 0
+RESIZED NODES: 0
+RESIZED NODES: 0
+MADE NEW NODES: 1
+MERGEUPDATERANK: 1
+TOTAL TIME: 8
+Generation 15 (108983992 -> 108982682 nodes, 108982682 ranks)
+Generating edges... 
+NODE.TO -> GENOME POS: 1
+BUILD FROM_INDEX 0
+COUNTED NEW EDGES: 1
+MADE NEW EDGES: 2
+SORTED NEW EDGES: 7
+RE-SORTED NODES: 7
+PROCESS EDGES: 1
+REMOVE Y: 0
+SORT, Make index: 6
+TOTAL: 25
+Allocating ftab, absorbFtab
+Entering GFM loop
+Exited GFM loop
+fchr[A]: 0
+fchr[C]: 19608862
+fchr[G]: 54575624
+fchr[T]: 89520595
+fchr[$]: 109114842
+Exiting GFM::buildToDisk()
+Returning from initFromVector
+Wrote 71361634 bytes to primary GFM file: hisat2_index_chlamydomonas_reinhardtii.1.ht2
+Wrote 27245676 bytes to secondary GFM file: hisat2_index_chlamydomonas_reinhardtii.2.ht2
+Re-opening _in1 and _in2 as input streams
+Returning from GFM constructor
+Returning from initFromVector
+Wrote 77207291 bytes to primary GFM file: hisat2_index_chlamydomonas_reinhardtii.5.ht2
+Wrote 27444734 bytes to secondary GFM file: hisat2_index_chlamydomonas_reinhardtii.6.ht2
+Re-opening _in5 and _in5 as input streams
+Returning from HierEbwt constructor
+Headers:
+    len: 107050806
+    gbwtLen: 109114843
+    nodes: 108982681
+    sz: 53525403
+    gbwtSz: 54557422
+    lineRate: 7
+    offRate: 4
+    offMask: 0xfffffff0
+    ftabChars: 10
+    eftabLen: 0
+    eftabSz: 0
+    ftabLen: 1048577
+    ftabSz: 4194308
+    offsLen: 6811418
+    offsSz: 27245672
+    lineSz: 128
+    sideSz: 128
+    sideGbwtSz: 104
+    sideGbwtLen: 208
+    numSides: 524591
+    numLines: 524591
+    gbwtTotLen: 67147648
+    gbwtTotSz: 67147648
+    reverse: 0
+    linearFM: No
+Total time for call to driver() for forward index: 00:08:03
