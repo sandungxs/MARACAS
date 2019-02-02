@@ -41,6 +41,7 @@ fi
 samtools sort -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
 rm ${ACC_NUMBER}.sam
 rm *.fastq
+rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
 samtools index ${ACC_NUMBER}.bam
 bamCoverage -bs 10 --normalizeUsing CPM --bam ${ACC_NUMBER}.bam -o ${ACC_NUMBER}.bw
 

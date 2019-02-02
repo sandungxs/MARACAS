@@ -2,7 +2,7 @@ installation_directory: /home/fran/research/MARACAS/
 working_directory: /home/fran/tmp
 microalgae: chlamydomonas_reinhardtii
 main_folder: cre_test_1
-number_of_samples: 12
+number_of_samples: 11
 control_condition_name: N_starvation_Oh
 experimental_condition_name: N_starvation_1h
 acc_sample1: SRR1521680	
@@ -27,7 +27,5 @@ acc_sample10: SRR1521701
 condition_sample10: N_starvation_1h
 acc_sample11: SRR1521702
 condition_sample11: N_starvation_1h
-acc_sample12: SRR1521703
-condition_sample12: N_starvation_1h
 fold_change: 2
 q_value: 0.05
