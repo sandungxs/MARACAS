@@ -29,6 +29,11 @@ library("factoextra")
 experimental.design <- read.csv("experimental_design.csv",as.is=T)
 experimental.design
 
+## Sort samples 
+sorted.samples <- sort(experimental.design$sample,ind=T)
+indeces.sorted.samples <- sorted.samples$ix
+experimental.design <- experimental.design[indeces.sorted.samples,]
+
 number.samples <- nrow(experimental.design)
 number.replicates <- table(experimental.design$condition)
 control.replicates <- number.replicates[[control.condition]]
