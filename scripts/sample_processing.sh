@@ -38,7 +38,7 @@ else
 fi
 
 ## Generting sorted bam file
-samtools sort -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
+samtools -m 2G sort -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
 rm ${ACC_NUMBER}.sam
 rm *.fastq
 rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
