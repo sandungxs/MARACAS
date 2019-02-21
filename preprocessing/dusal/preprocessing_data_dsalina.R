@@ -26,7 +26,7 @@ for(i in 1:nrow(dusal.gff3))
     dusal.gtf$V9[i] <- paste(c("gene_id",paste("\"",gene.id,"\";",sep=""),"transcript_id",paste("\"",transcript.id,"\";",sep=""),"exon_number",paste("\"",exon.number,"\";",sep="")), collapse = " ")
   } else if(dusal.gff3$V3[i] == "five_prime_UTR" || dusal.gff3$V3[i] == "three_prime_UTR" || dusal.gff3$V3[i] == "CDS")
   {
-    gene.id <- substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 13)
+    gene.id <- substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 16)
     transcript.id <- substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 18)
     dusal.gtf$V9[i] <- paste(c("gene_id",paste("\"",gene.id,"\";",sep=""),"transcript_id",paste("\"",transcript.id,"\";",sep="")), collapse = " ")
   }
