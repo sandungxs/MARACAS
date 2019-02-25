@@ -19,10 +19,18 @@ CONTROL=$8
 EXPERIMENTAL=$9
 FOLD_CHANGE=${10}
 Q_VALUE=${11}
+DATA=${12}
 
-## Downloading sample file
+## Downloading or copying sample file depending on data source
 cd ${SAMPLE_FOLDER} 
-fastq-dump --split-files ${ACC_NUMBER}
+if [ $DATA -eq "DB" ]
+then
+	fastq-dump --split-files ${ACC_NUMBER}
+else
+	cp ${ACC_NUMBER} sample_1.fastq.gz
+	gunzip sample_1.fastq.gz
+	ACC_NUMBER=sample
+fi
 
 ## Sample quality control and read mapping to reference genome
 if [ -f ${ACC_NUMBER}_2.fastq ]

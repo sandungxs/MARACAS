@@ -1,4 +1,5 @@
 installation_directory: /home/fran/research/MARACAS/
+data_source: DB
 working_directory: /home/fran/tmp
 microalgae: ostreococcus_tauri
 main_folder: ostta_test_2
