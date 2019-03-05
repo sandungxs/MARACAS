@@ -13,20 +13,53 @@ echo "Loading parameters from file " $PARAMS " ... "
 
 ## Load installation directory
 INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
+
 ## Load working directory
 WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
+
 ## Load main folder
 MAIN_FOLDER=$(grep main_folder: $PARAMS | awk '{ print $2 }')
+
 ## Load number of samples
 NUM_SAMPLES=$(grep number_of_samples: $PARAMS | awk '{ print $2 }')
+
 ## Load microalgae
 MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
-## Load accession numbers for each sample
-ACC_SAMPLES=()
-for i in `seq 0 $((${NUM_SAMPLES} - 1))`
-do   
-   ACC_SAMPLES[$i]=$(grep acc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
-done
+
+## Load data source
+DATA=$(grep data_source: $PARAMS | awk '{print $2}')
+
+## Load paired end data
+PAIRED=$(grep paired_end: $PARAMS | awk '{print $2}')
+
+## Load accession numbers for each sample o file location depending on data source
+if [ $DATA == "DB" ]
+then
+	ACC_SAMPLES=()
+	for i in `seq 0 $((${NUM_SAMPLES} - 1))`
+	do   
+   	ACC_SAMPLES[$i]=$(grep acc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
+	done
+elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+then
+	LOC_SAMPLES=()
+	for i in `seq 0 $((${NUM_SAMPLES} - 1))`
+	do   
+   	LOC_SAMPLES[$i]=$(grep loc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
+		ACC_SAMPLES[$i]=sample$(($i+1))
+	done
+elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+then
+	LOC_SAMPLES_LEFT=()
+	LOC_SAMPLES_RIGHT=()
+	for i in `seq 0 $((${NUM_SAMPLES} - 1))`
+	do   
+   	LOC_SAMPLES_LEFT[$i]=$(grep loc_sample_left$(($i +1)): $PARAMS | awk '{ print $2 }')
+   	LOC_SAMPLES_RIGHT[$i]=$(grep loc_sample_right$(($i +1)): $PARAMS | awk '{ print $2 }')
+		ACC_SAMPLES[$i]=sample$(($i+1))
+	done
+fi
+
 ## Load control condition name
 CONTROL_COND=$(grep control_condition_name: $PARAMS | awk '{ print $2 }')
 ## Load experimental condition name
@@ -47,7 +80,14 @@ echo " - Working directory: " $WD
 echo " - Main folder: " $MAIN_FOLDER
 echo " - Number of samples: " $NUM_SAMPLES
 echo " - Microalgae: " $MICROALGAE
-echo " - Sample accession numbers: " ${ACC_SAMPLES[@]}
+
+if [ $DATA == "BD" ]
+then
+	echo " - Sample accession numbers: " ${ACC_SAMPLES[@]}
+else
+	echo " - Sample locations: " ${LOC_SAMPLES[@]}
+fi
+
 echo " - Control condition name: " ${CONTROL_COND}
 echo " - Experimental condition name: " ${EXPERIMENTAL_COND} 
 echo " - Experimental design: " ${EXPERIMENTAL_DESIGN[@]}
@@ -87,7 +127,19 @@ done
 echo "Parallel sample processing"
 for  i in `seq 0 $((${NUM_SAMPLES} - 1))`
 do
-   echo "- Sample " $(($i + 1)) " processing submitted to queue"
-   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${ACC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE}
-   sleep 30m
+   if [ $DATA == "DB" ]
+	then
+	   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${ACC_SAMPLES[$i]}
+	   sleep 30m
+	elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+	then
+	   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${LOC_SAMPLES[$i]}
+	elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+	then
+		qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${LOC_SAMPLES_LEFT[$i]} ${LOC_SAMPLES_RIGHT[$i]}
+#	   qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${LOC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} $DATA
+	   sleep 30m
+        fi
+
+	echo "- Sample " $(($i + 1)) " processing submitted to queue"
 done

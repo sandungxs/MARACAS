@@ -1,6 +1,6 @@
-## Author: Francisco J. Romero-Campero
-## Date: January 2019
-## Email: fran@us.es
+## Authors: Francisco J. Romero-Campero
+##          Ana Belen Romero-Losada
+## Contact: Francisco J. Romero-Campero - fran@us.es
 
 #$ -S /bin/bash
 #$ -V
@@ -8,21 +8,42 @@
 #$ -j yes
 
 ## Name input parameters
-SAMPLE_FOLDER=$1
-ACC_NUMBER=$2
-INDEX=$3
-ANNOTATION=$4
-NUM_SAMPLES=$5
-INS=$6
-EXP_FOLDER=$7
-CONTROL=$8
-EXPERIMENTAL=$9
-FOLD_CHANGE=${10}
-Q_VALUE=${11}
 
-## Downloading sample file
+DATA=$1
+PAIRED=$2
+SAMPLE_FOLDER=$3
+INDEX=$4
+ANNOTATION=$5
+NUM_SAMPLES=$6
+INS=$7
+EXP_FOLDER=$8
+CONTROL=$9
+EXPERIMENTAL=${10}
+FOLD_CHANGE=${11}
+Q_VALUE=${12}
+FASTQ_LEFT=${13}
+FASTQ_RIGHT=${14}
+
+ACC_NUMBER=${FASTQ_LEFT}
+
+## Downloading or copying sample file depending on data source
 cd ${SAMPLE_FOLDER} 
-fastq-dump --split-files ${ACC_NUMBER}
+if [ $DATA == "DB" ]
+then
+	fastq-dump --split-files ${ACC_NUMBER}
+elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+then
+	cp ${ACC_NUMBER} sample_1.fastq.gz
+	gunzip sample_1.fastq.gz
+	ACC_NUMBER=sample
+elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+then
+	cp ${FASTQ_LEFT} sample_1.fastq.gz
+	gunzip sample_1.fastq.gz
+	cp ${FASTQ_RIGHT} sample_2.fastq.gz
+	gunzip sample_2.fastq.gz
+	ACC_NUMBER=sample   
+fi
 
 ## Sample quality control and read mapping to reference genome
 if [ -f ${ACC_NUMBER}_2.fastq ]

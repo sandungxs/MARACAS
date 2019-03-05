@@ -1,7 +1,9 @@
 installation_directory: /home/fran/research/MARACAS/
+data_source: DB
+paired_end: FALSE
 working_directory: /home/fran/tmp
 microalgae: ostreococcus_tauri
-main_folder: ostta_test_2
+main_folder: ostta_test_3
 number_of_samples: 7
 control_condition_name: iron_15H
 experimental_condition_name: no_iron_15H
