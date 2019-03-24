@@ -1,0 +1,11 @@
+instalation_directory: /home/fran/opt/TRANCE/
+working_directory: /home/fran/data/cre_chip_seq
+
+all_local: yes
+microalgae: chlamydomonas_reinhardtii
+
+sample_name: H3K27me3_before_starvation
+number_replicates: 1
+included_control: yes
+chip_replicate_1: SRR1521631
+control_replicate_1: SRR1521632
