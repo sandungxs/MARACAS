@@ -113,11 +113,11 @@ fviz_pca_ind(res.pca, col.ind = experimental.design$condition,
 dev.off()
 
 ## Hierarchical clustering
-res.hcpc <- HCPC(res.pca, graph=FALSE)    
+#res.hcpc <- HCPC(res.pca, graph=FALSE)    
 
-png(filename = "../results/hierarchical_clustering.png")
-plot(res.hcpc, choice ="tree")
-dev.off()
+#png(filename = "../results/hierarchical_clustering.png")
+#plot(res.hcpc, choice ="tree")
+#dev.off()
 
 ## Apply upper quantile normalization
 upper.quantiles <- vector(mode="numeric",length=ncol(gene.expression))
