@@ -59,26 +59,44 @@ then
 
 elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
 then
-    LOC_CHIP_SAMPLES=()
-    for i in `seq 0 $((${NUM_SAMPLES} - 1))`
-    do
-       LOC_SAMPLES[$i]=$(grep loc_chip_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
-       ACC_SAMPLES[$i]=sample$(($i+1))
-    done
-
-
-
+   LOC_CHIP_SAMPLES=()
+   for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      LOC_SAMPLES[$i]=$(grep loc_chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      ACC_SAMPLES[$i]=sample$(($i+1))
+   done
+   
+   if [ ${INCLUDED_CONTROL} == "yes" ]
+   then
+      LOC_CONTROL_SAMPLES=()
+      for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+      do
+         LOC_CONTROL_SAMPLES[$i]=$(grep loc_control_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      done
+   fi
 
 elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
 then
-   LOC_SAMPLES_LEFT=()
-   LOC_SAMPLES_RIGHT=()
-   for i in `seq 0 $((${NUM_SAMPLES} - 1))`
+   LOC_CHIP_SAMPLES_LEFT=()
+   LOC_CHIP_SAMPLES_RIGHT=()
+   for i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
-      LOC_SAMPLES_LEFT[$i]=$(grep loc_sample_left$(($i +1)): $PARAMS | awk '{ print $2 }')
-      LOC_SAMPLES_RIGHT[$i]=$(grep loc_sample_right$(($i +1)): $PARAMS | awk '{ print $2 }')
+      LOC_CHIP_SAMPLES_LEFT[$i]=$(grep loc_chip_replicate_left$(($i +1)): $PARAMS | awk '{ print $2 }')
+      LOC_CHIP_SAMPLES_RIGHT[$i]=$(grep loc_chip_replicate_right$(($i +1)): $PARAMS | awk '{ print $2 }')
       ACC_SAMPLES[$i]=sample$(($i+1))
    done
+
+   if [ ${INCLUDED_CONTROL} == "yes" ]
+   then
+      LOC_CONTROL_SAMPLES_LEFT=()
+      LOC_CONTROL_SAMPLES_RIGHT=()
+      for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+      do
+         LOC_CONTROL_SAMPLES_LEFT[$i]=$(grep loc_control_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
+         LOC_CONTROL_SAMPLES_RIGHT[$i]=$(grep loc_control_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      done
+   fi
+
 fi
 
 echo "The following parameters were loaded."
@@ -124,9 +142,6 @@ do
 done
 echo "Working directory generated"
 echo " "
-
-## Access logs folder
-cd ../logs
 
 ## Parallel sample processing
 echo "Parallel replicate processing"
