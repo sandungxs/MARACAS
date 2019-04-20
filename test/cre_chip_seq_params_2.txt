@@ -5,7 +5,7 @@ microalgae: chlamydomonas_reinhardtii
 main_folder: cre_chip_2
 number_of_replicates: 2
 included_control: yes
-PAIRED: FALSE
+paired_end: FALSE
 sample_name: H3K4me3_before_starvation
 chip_replicate_1: SRR1521604
 control_replicate_1: SRR1521605
