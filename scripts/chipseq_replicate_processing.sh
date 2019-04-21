@@ -20,6 +20,7 @@ CHIP_LEFT=$8
 CHIP_RIGHT=${9}
 CONTROL_LEFT=${10}
 CONTROL_RIGHT=${11}
+CURRENT_REPLICATE=${12}
 
 echo "DATA" $DATA
 echo "PAIRED" $PAIRED
@@ -97,8 +98,7 @@ then
 
 fi
 
-## Sample quality control, read mapping to reference genome, duplicates
-## removal and bw generation. 
+## Sample quality control and read mapping to reference genome. 
 if [ $PAIRED == "yes" ]
 then
    fastqc chip_1.fastq
@@ -141,10 +141,16 @@ rm *.sam
 rm *.fastq
 rm *fixmate*
 rm *dup_sorted*
-rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
 
+## Peak calling 
+if [ $CONTROL == "yes" ]
+then
+   macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE}
+else
+   macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE} 
+fi
 ## Write in blackboard
-echo "REPLICATE " ${ACC_NUMBER} " DONE" >> ../../logs/blackboard.txt
+echo "REPLICATE " ${CURRENT_REPLICATE} " DONE" >> ../../logs/blackboard.txt
 
 ## Count number of line in the blackboard to check the number of processed samples
 PROCESSED_REPLICATES=$(wc -l ../../logs/blackboard.txt | awk '{print $1}')
@@ -152,8 +158,21 @@ PROCESSED_REPLICATES=$(wc -l ../../logs/blackboard.txt | awk '{print $1}')
 ## Submit scripts for transcriptome merging and differential gene expression 
 if [ ${PROCESSED_REPLICATES} -eq ${NUM_REPLICATES} ]
 then
-#   qsub -o ${EXP_FOLDER}/logs/transcriptome_merging $INS/scripts/transcriptome_merging.sh ${EXP_FOLDER} $ANNOTATION
-#   Rscript $INS/scripts/DE_analysis.R ${EXP_FOLDER}/samples $CONTROL $EXPERIMENTAL $FOLD_CHANGE $Q_VALUE
-   echo "Here Rscritp to be launched"
+
+   if [ ${NUM_REPLICATES} -gt 1 ]
+   then
+      cd ../../results
+      cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
+      for  i in `seq 2 ${NUM_REPLICATES}`
+      do
+         intersectBed -a acum_peaks.narrowPeak -b ../replicates/replicate_$i/replicate_${i}_peaks.narrowPeak > acum_peaks_2.narrowPeak
+         rm acum_peaks.narrowPeak
+         mv acum_peaks_2.narrowPeak acum_peaks.narrowPeak
+      done
+      mv acum_peaks.narrowPeak output_peaks.narrowPeak
+   else
+      cp replicate_${CURRENT_REPLICATE}_peaks.narrowPeak ../../results/output_peaks.narrowPeak
+   fi
+   echo "Here Rscript to be launched"
 fi
 

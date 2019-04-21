@@ -151,7 +151,7 @@ do
    then
       if [ $PAIRED == "FALSE" ]
       then
-      qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} ${NUM_REPLICATES} ${INS_DIR} ${INCLUDED_CONTROL} ${CHIP_SAMPLES[$i]} NULL ${CONTROL_SAMPLES[$i]} NULL
+      qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} ${NUM_REPLICATES} ${INS_DIR} ${INCLUDED_CONTROL} ${CHIP_SAMPLES[$i]} NULL ${CONTROL_SAMPLES[$i]} NULL $(($i +1))
 #      else
       fi
    elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
