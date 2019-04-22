@@ -2,173 +2,172 @@
 
 ## Authors: Francisco J. Romero-Campero
 ##          Ana Belen Romero-Losada
-##          Pedro de los Reyes
+## Contact: Francisco J. Romero-Campero - fran@us.es
 
-## Maintainer: Francisco J. Romero-Campero <fran@us.es>
-## Contact: Francisco J. Romero-Campero <fran@us.es>
+## Load parameters from file
 
-## Check number of input parameters and display help message
-if [ $# -ne 1 ]
-  then
-    echo "Wrong number of input arguments supplied."
-    echo ""
-    echo "Usage: trance <parameter_file>"
-    echo ""
-    echo "The parameter file must be a plain text similar"
-    echo "to the following example:"
-    echo ""
-
-    exit 1
-fi
-
-## Name first argument
+## Input file name
 PARAMS=$1
 
-## Read in parameters
-echo "-------------------------------------------------------------------"
-echo "Reading parameter file ..."
+echo "Loading parameters from file " $PARAMS " ... "
 
-## Instalation directory
-INS=$(grep instalation_directory: $PARAMS | awk '{ print $2 }')
+## Load installation directory
+INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
 
-## Working directory 
+## Load data source
+DATA=$(grep data_source: $PARAMS | awk '{print $2}')
+
+## Load working directory
 WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
 
 ## Load main folder
 MAIN_FOLDER=$(grep main_folder: $PARAMS | awk '{ print $2 }')
 
+## Load number of replicates
+NUM_REPLICATES=$(grep number_of_replicates: $PARAMS | awk '{ print $2 }')
+
+## Load sample name 
+SAMPLE_NAME=$(grep sample_name: $PARAMS | awk '{ print $2 }')
+
 ## Load microalgae
 MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
 
-ALL_LOCAL=$(grep all_local: $PARAMS | awk '{ print $2 }')
-
-declare -A SAMPLES_ACC
-
-SAMPLE_NAME=$(grep sample_name: $PARAMS | awk '{print $2}')
-NUMBER_REPLICATES=$(grep number_replicates: $PARAMS | awk '{print $2}')
+## Load control is part of the design
 INCLUDED_CONTROL=$(grep included_control: $PARAMS | awk '{ print $2 }')
 
-for j in `seq 0 $((${NUMBER_REPLICATES[$i]} -1))` 
-do
-   SAMPLES_ACC[chip_replicate_$(($j + 1))]+=$(grep chip_replicate_$(($j + 1)): $PARAMS | awk '{ print $2 }')
-   if [ ${INCLUDED_CONTROL[$i]} == "yes" ]
-      then
-         SAMPLES_ACC[control_replicate_$(($j + 1))]+=$(grep control_replicate_$(($j + 1)): $PARAMS | awk '{ print $2 }')
-      else
-         SAMPLES_ACC[control_replicate_$(($j + 1))]+=NA
+## Load paired end data
+PAIRED=$(grep paired_end: $PARAMS | awk '{print $2}')
+
+## Load accession numbers for each sample o file location depending on data source
+if [ $DATA == "DB" ]
+then
+
+   CHIP_SAMPLES=()
+   for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      CHIP_SAMPLES[$i]=$(grep chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+   done
+
+   if [ ${INCLUDED_CONTROL} == "yes" ]
+   then
+      CONTROL_SAMPLES=()
+      for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+      do
+         CONTROL_SAMPLES[$i]=$(grep control_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      done
    fi
-done
 
-echo ""
-echo "Read parameters:"
-echo "instalation_directory: " $INS
-echo "working directory: " $WD
-echo "all_local: " $ALL_LOCAL
-echo "microalgae: " $MICROALGAE
-echo "Sample name " ${NAME_TFS}
-echo "Number replicates " ${NUMBER_REPLICATES}
+elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+then
+   LOC_CHIP_SAMPLES=()
+   for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      LOC_SAMPLES[$i]=$(grep loc_chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      ACC_SAMPLES[$i]=sample$(($i+1))
+   done
+   
+   if [ ${INCLUDED_CONTROL} == "yes" ]
+   then
+      LOC_CONTROL_SAMPLES=()
+      for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+      do
+         LOC_CONTROL_SAMPLES[$i]=$(grep loc_control_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      done
+   fi
 
-for j in `seq 0 $((${NUMBER_REPLICATES} -1))`
-do
-   echo chip_replicate_$(($j + 1)) = ${SAMPLES_ACC[chip_replicate_$(($j + 1))]}
-   echo control_replicate_$(($j + 1)) = ${SAMPLES_ACC[control_replicate_$(($j + 1))]}
-done
+elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+then
+   LOC_CHIP_SAMPLES_LEFT=()
+   LOC_CHIP_SAMPLES_RIGHT=()
+   for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      LOC_CHIP_SAMPLES_LEFT[$i]=$(grep loc_chip_replicate_left$(($i +1)): $PARAMS | awk '{ print $2 }')
+      LOC_CHIP_SAMPLES_RIGHT[$i]=$(grep loc_chip_replicate_right$(($i +1)): $PARAMS | awk '{ print $2 }')
+      ACC_SAMPLES[$i]=sample$(($i+1))
+   done
 
+   if [ ${INCLUDED_CONTROL} == "yes" ]
+   then
+      LOC_CONTROL_SAMPLES_LEFT=()
+      LOC_CONTROL_SAMPLES_RIGHT=()
+      for i in `seq 0 $((${NUM_REPLICATES} - 1))`
+      do
+         LOC_CONTROL_SAMPLES_LEFT[$i]=$(grep loc_control_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
+         LOC_CONTROL_SAMPLES_RIGHT[$i]=$(grep loc_control_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      done
+   fi
 
+fi
 
-echo ""
-echo "Done reading parameter file."
-echo "-------------------------------------------------------------------"
-echo ""
+echo "The following parameters were loaded."
+echo " - Installation directory: " $INS_DIR
+echo " - Working directory: " $WD
+echo " - Main folder: " $MAIN_FOLDER
+echo " - Number of replicates: " $NUM_REPLICATES
+echo " - Sample name: " ${SAMPLE_NAME}
+echo " - Microalgae: " $MICROALGAE
+
+if [ $DATA == "DB" ]
+then
+        echo " - Sample accession numbers: " ${CHIP_SAMPLES[@]} ${CONTROL_SAMPLES[@]}
+else
+        echo " - Sample locations: " ${LOC_SAMPLES[@]}
+fi
+
+echo " "
+
 
 ## Generate working directory structure
 
-echo ""
-echo "-------------------------------------------------------------------"
-echo "Generating working directory structure"
+#echo ""
+#echo "-------------------------------------------------------------------"
+#echo "Generating working directory structure"
 
-if [ -d $WD ]
-then
-    echo "Working directory " $WD " already exists."
-    echo "Do you want to delete it and create a new empty directory? (Yes | No)"
-    read ANS
-
-    if [ $ANS == "Yes" ] || [ $ANS == "YES" ] || [ $ANS == "yes" ] || [ $ANS == "Y" ] || [ $ANS == "y" ] 
-    then
-        rm -r $WD
-        mkdir $WD
-    elif [ $ANS == "No" ] || [ $ANS == "NO" ] || [ $ANS == "no" ] || [ $ANS == "N" ] || [ $ANS == "n" ]
-    then
-         echo "Please delete de directory " $WD " manually or specify a diferent working directory in the parameter file " $PARAMS
-         exit 1
-    else
-         echo "Wrong answer. Please re-run trance and please answer Yes or No to the previous question."
-         exit 1
-    fi
-else
-    mkdir $WD
-fi
-
+## Access working directory
 cd $WD
-mkdir genome annotation results samples logs
 
-## Copy genome and create index
-if [ ! -f $GENOME_LOC ] 
-then
-    echo "Genome file " $GENOME_LOC " does NOT exists. Please check it and re-run trance."
-    exit 1
-fi
+## Create and access main folder
+mkdir ${MAIN_FOLDER}
+cd ${MAIN_FOLDER}
 
-cd genome
-cp $GENOME_LOC genome.fa.gz
-gunzip genome.fa.gz
-bowtie-build genome.fa index
+## Create subfolders
+mkdir replicates results logs
 
-## Copy annotation file
-if [ ! -f $ANNOTATION_LOC ]
-then
-    echo "Annotation file " $ANNOTATION_LOC " does NOT exists. Please check it and re-run trance"
-    exit 1
-fi
+## Create folder for each sample
+cd replicates
 
-cd ../annotation/
-cp $ANNOTATION_LOC annotation.gff3
-
-## Generate samples folder
-cd ../samples
-
-for i in `seq 0 $(($NUMBER_TFS - 1))`
+for i in `seq 1 ${NUM_REPLICATES}`
 do
-    mkdir ${NAME_TFS[$i]}
-    cd ${NAME_TFS[$i]}
+   mkdir replicate_$i
+done
+echo "Working directory generated"
+echo " "
 
-    for j in `seq 0 $((${NUMBER_REPLICATES[$i]} -1))`
-    do
-        mkdir chip_replicate_$(($j + 1))
-        mkdir control_replicate_$(($j + 1))
-        cd .. 
-    done
+## Parallel sample processing
+echo "Parallel replicate processing"
+for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
+do
+   if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
+   then
+      if [ $PAIRED == "FALSE" ]
+      then
+      qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} ${NUM_REPLICATES} ${INS_DIR} ${INCLUDED_CONTROL} ${CHIP_SAMPLES[$i]} NULL ${CONTROL_SAMPLES[$i]} NULL $(($i +1))
+#      else
+      fi
+   elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+   then
+      qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${LOC_SAMPLES[$i]}
+   elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+   then
+                qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${LOC_SAMPLES_LEFT[$i]} ${LOC_SAMPLES_RIGHT[$i]}
+#          qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${LOC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} $DATA
+   fi
+
+   echo "- Replicate " $(($i + 1)) " processing submitted to queue"
+   sleep 30m
 done
 
-echo "Done generating working directory structure."
-echo ""
-echo "-------------------------------------------------------------------"
 
-## Access logs folder
-cd ../logs
 
-## Submit processing for each transcrition factor replicate
-for i in `seq 0 $(($NUMBER_TFS - 1))`
-do
-    for j in `seq 0 $((${NUMBER_REPLICATES[$i]} -1))`
-    do
-        sbatch --job-name ${NAME_TFS[$i]}_replicate_$(($j + 1)) --output ${NAME_TFS[$i]}_replicate_$(($j + 1)) $INS/read_mapping.sh $INS $WD ${NAME_TFS[$i]} $(($j + 1)) ${SAMPLES_ACC[chip_replicate_$(($j + 1))_TF_$(($i + 1))]} chip ${NUMBER_REPLICATES[$i]}
-        if [ ${SAMPLES_ACC[control_replicate_$(($j + 1))_TF_$(($i + 1))]} == NA ]
-        then
-            echo control_replicate_$(($j + 1))_${NAME_TFS[$i]} DONE >> blackboard_replicate_$(($j + 1))_${NAME_TFS[$i]}        
-        else
-            sbatch --job-name ${NAME_TFS[$i]}_replicate_$(($j + 1)) --output ${NAME_TFS[$i]}_replicate_$(($j + 1)) $INS/read_mapping.sh $INS $WD ${NAME_TFS[$i]} $(($j + 1)) ${SAMPLES_ACC[control_replicate_$(($j + 1))_TF_$(($i + 1))]} control ${NUMBER_REPLICATES[$i]}
-        fi
-    done
-done
+
 

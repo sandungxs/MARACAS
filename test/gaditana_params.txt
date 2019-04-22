@@ -1,0 +1,17 @@
+installation_directory: /home/fran/research/MARACAS/
+data_source: DB
+paired_end: TRUE
+working_directory: /home/fran/tmp
+microalgae: nannochloropsis_gaditana
+main_folder: ngaditana
+number_of_samples: 3
+control_condition_name: high_N
+experimental_condition_name: low_N
+acc_sample1: SRR5152512
+condition_sample1: high_N
+acc_sample2: SRR5152511
+condition_sample2: low_N
+acc_sample3: SRR5152517
+condition_sample3: low_N
+fold_change: 2
+q_value: 0.05

@@ -5,37 +5,42 @@ cocsu.gtf <- cocsu.gff3
 head(cocsu.gff3)
 
 unique(cocsu.gff3$V3)
+i <- 38
 for(i in 1:nrow(cocsu.gff3))
 {
   current.attributes <- strsplit(cocsu.gff3$V9[i],split=";")[[1]]
   if(cocsu.gff3$V3[i] == "gene")
   {
-    next.attributes<-strsplit(cocsu.gff3$V9[i+1],split=";")[[1]]
-    gene.id <- strsplit(next.attributes[1],split="=")[[1]][2]
+    #next.attributes<-strsplit(cocsu.gff3$V9[i+1],split=";")[[1]]
+    #gene.id <- strsplit(next.attributes[1],split="=")[[1]][2]
+    #cocsu.gtf$V9[i] <- paste("gene_id", paste("\"",gene.id,"\";",sep=""))
+    gene.id <- strsplit(current.attributes[2],split="=")[[1]][2]
     cocsu.gtf$V9[i] <- paste("gene_id", paste("\"",gene.id,"\";",sep=""))
+    
   } else if(cocsu.gff3$V3[i] == "mRNA")
   {
-    gene.id <- substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 26)
-    transcript.id <- paste(strsplit(current.attributes[1],"=")[[1]][2],".1", sep="")
+    gene.id <- strsplit(strsplit(current.attributes[5],split="=")[[1]][2],split= ".2.0.227")[[1]][1]
+    transcript.id <- paste(gene.id,".1", sep="")
     cocsu.gtf$V9[i] <- paste(c("gene_id",paste("\"",gene.id,"\";",sep=""),"transcript_id",paste("\"",transcript.id,"\";",sep="")), collapse = " ")
   } else if(cocsu.gff3$V3[i] == "exon")
   {
-    gene.id <- substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 26)
-    transcript.id <- paste(substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 13),".1", sep="")
+    
+    #gene.id <- substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 26)
+    #transcript.id <- paste(substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 13),".1", sep="")
     exon.number <- strsplit(strsplit(current.attributes[1],split="=")[[1]][2],split="exon.")[[1]][2]
     cocsu.gtf$V9[i] <- paste(c("gene_id",paste("\"",gene.id,"\";",sep=""),"transcript_id",paste("\"",transcript.id,"\";",sep=""),"exon_number",paste("\"",exon.number,"\";",sep="")), collapse = " ")
   }
   else if(cocsu.gff3$V3[i] == "CDS")
   {
-    gene.id <- substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 13)
-    trancript.id <- paste(substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 13),".1", sep = "")
+    #gene.id <- substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 13)
+    #trancript.id <- paste(substr(strsplit(current.attributes[1],split="=")[[1]][2],start = 1,stop = 13),".1", sep = "")
     CDS.number <- strsplit(strsplit(current.attributes[1],split="=")[[1]][2],split="CDS.")[[1]][2]
     cocsu.gtf$V9[i] <- paste(c("gene_id",paste("\"",gene.id,"\";",sep=""),"transcript_id",paste("\"",transcript.id,"\";",sep=""),"exon_number",paste("\"",exon.number,"\";",sep="")), collapse = " ")
   }
    else if(cocsu.gff3$V3[i] == "five_prime_UTR" || cocsu.gff3$V3[i] == "three_prime_UTR" )
   {
-    gene.id <- substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 13)
-    transcript.id <- paste(substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 13),".1", sep="")
+    # gene.id <- substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 13)
+    # transcript.id <- paste(substr(strsplit(current.attributes[2],split="=")[[1]][2],start = 1,stop = 13),".1", sep="")
     cocsu.gtf$V9[i] <- paste(c("gene_id",paste("\"",gene.id,"\";",sep=""),"transcript_id",paste("\"",transcript.id,"\";",sep="")), collapse = " ")
   }
 }

@@ -8,6 +8,13 @@
 # fc.threshold <- 2
 # q.val.threshold <- 0.05
 
+# working.directory <- "/home/fran/tmp/ngaditana/samples/"
+# control.condition <- "high_N"
+# experimental.condition <- "low_N"
+# fc.threshold <- 2
+# q.val.threshold <- 1
+
+
 args <- commandArgs(trailingOnly=TRUE)
 
 working.directory <- args[1]
@@ -113,11 +120,11 @@ fviz_pca_ind(res.pca, col.ind = experimental.design$condition,
 dev.off()
 
 ## Hierarchical clustering
-res.hcpc <- HCPC(res.pca, graph=FALSE)    
+#res.hcpc <- HCPC(res.pca, graph=FALSE)    
 
-png(filename = "../results/hierarchical_clustering.png")
-plot(res.hcpc, choice ="tree")
-dev.off()
+#png(filename = "../results/hierarchical_clustering.png")
+#plot(res.hcpc, choice ="tree")
+#dev.off()
 
 ## Apply upper quantile normalization
 upper.quantiles <- vector(mode="numeric",length=ncol(gene.expression))
@@ -173,8 +180,24 @@ dev.off()
 # boxplot(normalized.data[,2:5],col=rep(c("red","blue"),each=2))
 
 ## Compute the mean expression matrix
-control <- rowMeans(log.gene.expression[,control.indeces])
-experimental <- rowMeans(log.gene.expression[,experimental.indeces])
+if(length(control.indeces) > 1)
+{
+  control <- rowMeans(log.gene.expression[,control.indeces])  
+} else
+{
+  control <- as.vector(log.gene.expression[,control.indeces])
+  names(control) <- rownames(log.gene.expression)
+}
+
+if(length(experimental.indeces) > 1)
+{
+  experimental <- rowMeans(log.gene.expression[,experimental.indeces])
+} else
+{
+  experimental <- as.vector(log.gene.expression[,experimental.indeces])
+  names(experimental) <- rownames(log.gene.expression)
+}
+
 
 mean.expression <- matrix(c(control,experimental),ncol=2)
 colnames(mean.expression) <- c(control.condition,experimental.condition)
@@ -253,8 +276,21 @@ experimental.expr.vals <- unlist(c(original.data[gene, experimental.indeces]))
 mean.control <- mean(control.expr.vals)
 mean.experimental <- mean(experimental.expr.vals)
 
-sd.control <- sd(control.expr.vals)
-sd.experimental <- sd(experimental.expr.vals)
+if(length(control.indeces) > 1)
+{
+  sd.control <- sd(control.expr.vals)  
+} else
+{
+  sd.control <- 0
+}
+  
+if(length(experimental.indeces) > 1)
+{
+  sd.experimental <- sd(experimental.expr.vals)  
+} else
+{
+  sd.experimental <- 0
+}
 
 means <- c(mean.control, mean.experimental)
 sds <- c(sd.control, sd.experimental)
