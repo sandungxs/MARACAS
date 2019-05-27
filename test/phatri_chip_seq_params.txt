@@ -1,0 +1,11 @@
+installation_directory: /home/fran/research/MARACAS/
+data_source: DB
+working_directory: /home/fran/tmp
+microalgae: phaeodactylum_tricornutum
+main_folder: phatri_chip_1
+number_of_replicates: 1
+included_control: yes
+paired_end: FALSE
+sample_name: H3K27me3
+chip_replicate_1: SRR2006973
+control_replicate_1: SRR2006978
