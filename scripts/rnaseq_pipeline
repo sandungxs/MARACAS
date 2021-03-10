@@ -93,7 +93,8 @@ if [ $DATA == "BD" ]
 then
 	echo " - Sample accession numbers: " ${ACC_SAMPLES[@]}
 else
-	echo " - Sample locations: " ${LOC_SAMPLES[@]}
+	echo " - Sample locations: " ${LOC_SAMPLES_LEFT[@]}
+        echo ${LOC_SAMPLES_RIGHT[@]}
 fi
 
 echo " - Control condition name: " ${CONTROL_COND}
@@ -246,10 +247,8 @@ then
                                              ${LOC_SAMPLES_RIGHT[$i]} \
                                              $NPROC
          fi
-
-         echo "- Sample " $(($i + 1)) " processing submitted to queue"
    done
 
-
-
+   bash ${INS_DIR}/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+   Rscript $INS/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE
 fi

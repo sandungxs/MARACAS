@@ -2,10 +2,7 @@
 ##          Ana Belen Romero-Losada
 ## Contact: Francisco J. Romero-campero - fran@us.es
 
-#$ -S /bin/bash
-#$ -V
-#$ -cwd
-#$ -j yes
+#! /bin/bash
 
 EXP_FOLDER=$1
 ANNOTATION=$2

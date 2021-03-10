@@ -27,32 +27,29 @@ ACC_NUMBER=${FASTQ_LEFT}
 cd ${SAMPLE_FOLDER} 
 if [ $DATA == "DB" ]
 then
-	fastq-dump --split-files ${ACC_NUMBER}
+	fastq-dump --split-files --gzip ${ACC_NUMBER}
 elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
 then
 	cp ${ACC_NUMBER} sample_1.fastq.gz
-	gunzip sample_1.fastq.gz
 	ACC_NUMBER=sample
 elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
 then
 	cp ${FASTQ_LEFT} sample_1.fastq.gz
-	gunzip sample_1.fastq.gz
 	cp ${FASTQ_RIGHT} sample_2.fastq.gz
-	gunzip sample_2.fastq.gz
 	ACC_NUMBER=sample   
 fi
 
 ## Sample quality control and read mapping to reference genome
 if [ -f ${ACC_NUMBER}_2.fastq ]
 then
-   fastqc ${ACC_NUMBER}_1.fastq
-   fastqc ${ACC_NUMBER}_2.fastq
+   fastqc ${ACC_NUMBER}_1.fastq.gz
+   fastqc ${ACC_NUMBER}_2.fastq.gz
 
-   hisat2 -p $NPROC --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq -2 ${ACC_NUMBER}_2.fastq -S ${ACC_NUMBER}.sam
+   hisat2 -p $NPROC --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq.gz -2 ${ACC_NUMBER}_2.fastq -S ${ACC_NUMBER}.sam
 else
-   fastqc ${ACC_NUMBER}_1.fastq
+   fastqc ${ACC_NUMBER}_1.fastq.gz
 
-   hisat2 -p $NPROC --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq -S ${ACC_NUMBER}.sam
+   hisat2 -p $NPROC --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq.gz -S ${ACC_NUMBER}.sam
 fi
 
 ## Generting sorted bam file
