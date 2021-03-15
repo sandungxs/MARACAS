@@ -250,5 +250,5 @@ then
    done
 
    bash ${INS_DIR}/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
-   Rscript $INS/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE
+   Rscript ${INS_DIR}/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE
 fi

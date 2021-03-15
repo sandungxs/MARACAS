@@ -40,25 +40,26 @@ then
 fi
 
 ## Sample quality control and read mapping to reference genome
-if [ -f ${ACC_NUMBER}_2.fastq ]
+if [ -f ${ACC_NUMBER}_2.fastq.gz ]
 then
-   fastqc ${ACC_NUMBER}_1.fastq.gz
-   fastqc ${ACC_NUMBER}_2.fastq.gz
+   #fastqc ${ACC_NUMBER}_1.fastq.gz
+   #fastqc ${ACC_NUMBER}_2.fastq.gz
 
-   hisat2 -p $NPROC --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq.gz -2 ${ACC_NUMBER}_2.fastq -S ${ACC_NUMBER}.sam
+   hisat2 -p $NPROC --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq.gz -2 ${ACC_NUMBER}_2.fastq.gz -S ${ACC_NUMBER}.sam | tee mapping_stats
 else
    fastqc ${ACC_NUMBER}_1.fastq.gz
 
-   hisat2 -p $NPROC --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq.gz -S ${ACC_NUMBER}.sam
+   hisat2 -p $NPROC --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq.gz -S ${ACC_NUMBER}.sam | tee mapping_stats
 fi
 
 ## Generting sorted bam file
 samtools sort -@ $NPROC -m 2G -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
 rm ${ACC_NUMBER}.sam
-rm *.fastq
+rm *.fastq.gz
 rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
 samtools index -@ $NPROC ${ACC_NUMBER}.bam
 bamCoverage -p $NPROC -bs 10 --normalizeUsing CPM --bam ${ACC_NUMBER}.bam -o ${ACC_NUMBER}.bw
+#rm *.bam
 
 ## Transcript assembly
 stringtie -p $NPROC -G $ANNOTATION -o ${ACC_NUMBER}.gtf -l ${ACC_NUMBER} ${ACC_NUMBER}.bam
