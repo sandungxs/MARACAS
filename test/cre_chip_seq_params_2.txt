@@ -1,5 +1,6 @@
 installation_directory: /home/fran/research/MARACAS/
 data_source: DB
+cluster: SERVER
 working_directory: /home/fran/tmp
 microalgae: chlamydomonas_reinhardtii
 main_folder: cre_chip_2
