@@ -2,13 +2,9 @@
 ##          Ana Belen Romero-Losada
 ## Contact: Francisco J. Romero-Campero - fran@us.es
 
-#$ -S /bin/bash
-#$ -V
-#$ -cwd
-#$ -j yes
+#| /bin/bash
 
 ## Name input parameters
-
 DATA=$1
 PAIRED=$2
 REPLICATE_FOLDER=$3
@@ -95,7 +91,6 @@ then
       cp ${CONTROL_RIGHT} control_2.fastq.gz
       gunzip control_2.fastq.gz
    fi
-
 fi
 
 ## Sample quality control and read mapping to reference genome. 
@@ -103,18 +98,18 @@ if [ $PAIRED == "yes" ]
 then
    fastqc chip_1.fastq
    fastqc chip_2.fastq
-   bowtie2 -x $INDEX -1 chip_1.fastq -2 chip_2.fastq -S raw_chip.sam
+   bowtie2 -x $INDEX -1 chip_1.fastq -2 chip_2.fastq -S raw_chip.sam &> mapping_stats
    if [ $CONTROL == "yes" ]
    then
-      bowtie2 -x $INDEX -1 control_1.fastq -2 control_2.fastq -S raw_control.sam
+      bowtie2 -x $INDEX -1 control_1.fastq -2 control_2.fastq -S raw_control.sam &> mapping_stats
    fi
 else
    fastqc chip_1.fastq
-   bowtie2 -x $INDEX -U chip_1.fastq -S raw_chip.sam
+   bowtie2 -x $INDEX -U chip_1.fastq -S raw_chip.sam &> mapping_stats
 
    if [ $CONTROL == "yes" ]
    then
-      bowtie2 -x $INDEX -U control_1.fastq -S raw_control.sam
+      bowtie2 -x $INDEX -U control_1.fastq -S raw_control.sam &> mapping_stats
    fi
 fi
 
@@ -145,17 +140,12 @@ rm *dup_sorted*
 ## Peak calling 
 if [ $CONTROL == "yes" ]
 then
-   macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE}
+   macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE} &> macs_output
 else
-   macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE} 
+   macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE}  &> macs_output
 fi
-## Write in blackboard
-echo "REPLICATE " ${CURRENT_REPLICATE} " DONE" >> ../../logs/blackboard.txt
 
-## Count number of line in the blackboard to check the number of processed samples
-PROCESSED_REPLICATES=$(wc -l ../../logs/blackboard.txt | awk '{print $1}')
-
-## Submit scripts for transcriptome merging and differential gene expression 
+ 
 if [ ${PROCESSED_REPLICATES} -eq ${NUM_REPLICATES} ]
 then
 

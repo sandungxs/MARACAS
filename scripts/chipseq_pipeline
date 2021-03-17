@@ -99,6 +99,12 @@ then
 
 fi
 
+## Load parameter to indicate if the pipeline is going to be run on a cluster >
+ARCH=$(grep cluster: $PARAMS | awk '{ print $2}')
+
+## Load parameter with the number of processors
+NPROC=$(grep number_processors: $PARAMS | awk '{ print $2}')
+
 echo "The following parameters were loaded."
 echo " - Installation directory: " $INS_DIR
 echo " - Working directory: " $WD
@@ -144,29 +150,144 @@ echo "Working directory generated"
 echo " "
 
 ## Parallel sample processing
-echo "Parallel replicate processing"
-for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
-do
-   if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
-   then
-      if [ $PAIRED == "FALSE" ]
+if [ $ARCH == "SGE" ]
+then
+   echo "Parallel replicate processing"
+   for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
       then
-      qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} ${NUM_REPLICATES} ${INS_DIR} ${INCLUDED_CONTROL} ${CHIP_SAMPLES[$i]} NULL ${CONTROL_SAMPLES[$i]} NULL $(($i +1))
-#      else
-      fi
-   elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
-   then
-      qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${LOC_SAMPLES[$i]}
-   elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
-   then
-                qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} ${LOC_SAMPLES_LEFT[$i]} ${LOC_SAMPLES_RIGHT[$i]}
+         if [ $PAIRED == "FALSE" ]
+         then
+         qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+                                         $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         ${NUM_REPLICATES} \
+                                         ${INS_DIR} \
+                                         ${INCLUDED_CONTROL} \
+                                         ${CHIP_SAMPLES[$i]} \
+                                         NULL \
+                                         ${CONTROL_SAMPLES[$i]} \
+                                         NULL \
+                                         $(($i +1))
+#         else
+         fi
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+      then
+         qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                                         $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         ${NUM_SAMPLES} \
+                                         ${INS_DIR} \
+                                         $WD/${MAIN_FOLDER} \
+                                         ${CONTROL_COND} \
+                                         ${EXPERIMENTAL_COND} \
+                                         ${FOLD_CHANGE} \
+                                         ${Q_VALUE} \
+                                         ${LOC_SAMPLES[$i]}
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+      then
+                qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                                                $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                                ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                                ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                                ${NUM_SAMPLES} \
+                                                ${INS_DIR} \
+                                                $WD/${MAIN_FOLDER} \
+                                                ${CONTROL_COND} \
+                                                ${EXPERIMENTAL_COND} \
+                                                ${FOLD_CHANGE} \
+                                                ${Q_VALUE} \
+                                                ${LOC_SAMPLES_LEFT[$i]} \
+                                                ${LOC_SAMPLES_RIGHT[$i]}
 #          qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${LOC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} $DATA
-   fi
+      fi
 
-   echo "- Replicate " $(($i + 1)) " processing submitted to queue"
-   sleep 30m
-done
+      echo "- Replicate " $(($i + 1)) " processing submitted to queue"
+      sleep 30m
+   done
 
+elif [ $ARCH == "SERVER" ]
+then
+
+   echo "Sequential replicate processing"
+   echo ""
+   echo "- Replicate " $(($i + 1)) " processing"
+
+   for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
+      then
+         if [ $PAIRED == "FALSE" ]
+         then
+         bash ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+                                         $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         ${NUM_REPLICATES} \
+                                         ${INS_DIR} \
+                                         ${INCLUDED_CONTROL} \
+                                         ${CHIP_SAMPLES[$i]} \
+                                         NULL \
+                                         ${CONTROL_SAMPLES[$i]} \
+                                         NULL \
+                                         $(($i +1))
+         fi
+     elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+     then
+         bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                                         $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         ${NUM_SAMPLES} \
+                                         ${INS_DIR} \
+                                         $WD/${MAIN_FOLDER} \
+                                         ${CONTROL_COND} \
+                                         ${EXPERIMENTAL_COND} \
+                                         ${FOLD_CHANGE} \
+                                         ${Q_VALUE} \
+                                         ${LOC_SAMPLES[$i]}
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+      then
+          bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                                         $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         ${NUM_SAMPLES} \
+                                         ${INS_DIR} \
+                                         $WD/${MAIN_FOLDER} \
+                                         ${CONTROL_COND} \
+                                         ${EXPERIMENTAL_COND} \
+                                         ${FOLD_CHANGE} \
+                                         ${Q_VALUE} \
+                                         ${LOC_SAMPLES_LEFT[$i]} \
+                                         ${LOC_SAMPLES_RIGHT[$i]}
+      fi
+
+      echo "- Replicate " $(($i + 1)) " processed"
+   done
+fi
+
+echo "Samples processing finished"
+echo ""
+echo "Final output generation"
+
+if [ ${NUM_REPLICATES} -gt 1 ]
+then
+   cd ../../results
+   cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
+   for  i in `seq 2 ${NUM_REPLICATES}`
+   do
+      intersectBed -a acum_peaks.narrowPeak -b ../replicates/replicate_$i/replicate_${i}_peaks.narrowPeak > acum_peaks_2.narrowPeak
+      rm acum_peaks.narrowPeak
+      mv acum_peaks_2.narrowPeak acum_peaks.narrowPeak
+   done
+   mv acum_peaks.narrowPeak output_peaks.narrowPeak
+else
+   cp replicate_${CURRENT_REPLICATE}_peaks.narrowPeak ../../results/output_peaks.narrowPeak
+fi
+
+echo "Here Rscript to be launched"
 
 
 
