@@ -140,29 +140,9 @@ rm *dup_sorted*
 ## Peak calling 
 if [ $CONTROL == "yes" ]
 then
-   macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE} &> macs_output
+   echo "Peak calling with control sample"
+   macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE} --nomodel &> macs_output
 else
-   macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE}  &> macs_output
+   echo "Peak calling without control sample"
+   macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE} --nomodel  &> macs_output
 fi
-
- 
-if [ ${PROCESSED_REPLICATES} -eq ${NUM_REPLICATES} ]
-then
-
-   if [ ${NUM_REPLICATES} -gt 1 ]
-   then
-      cd ../../results
-      cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
-      for  i in `seq 2 ${NUM_REPLICATES}`
-      do
-         intersectBed -a acum_peaks.narrowPeak -b ../replicates/replicate_$i/replicate_${i}_peaks.narrowPeak > acum_peaks_2.narrowPeak
-         rm acum_peaks.narrowPeak
-         mv acum_peaks_2.narrowPeak acum_peaks.narrowPeak
-      done
-      mv acum_peaks.narrowPeak output_peaks.narrowPeak
-   else
-      cp replicate_${CURRENT_REPLICATE}_peaks.narrowPeak ../../results/output_peaks.narrowPeak
-   fi
-   echo "Here Rscript to be launched"
-fi
-

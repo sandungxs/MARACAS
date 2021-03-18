@@ -62,7 +62,7 @@ then
    LOC_CHIP_SAMPLES=()
    for i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
-      LOC_SAMPLES[$i]=$(grep loc_chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      LOC_CHIP_SAMPLES[$i]=$(grep loc_chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
       ACC_SAMPLES[$i]=sample$(($i+1))
    done
    
@@ -213,10 +213,10 @@ then
 
    echo "Sequential replicate processing"
    echo ""
-   echo "- Replicate " $(($i + 1)) " processing"
 
    for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
+      echo "- Replicate " $(($i + 1)) " processing"
       if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
       then
          if [ $PAIRED == "FALSE" ]
@@ -235,18 +235,17 @@ then
          fi
      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
      then
-         bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
-                                         $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
-                                         ${NUM_SAMPLES} \
+         bash ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+                                         $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         ${NUM_REPLICATES} \
                                          ${INS_DIR} \
-                                         $WD/${MAIN_FOLDER} \
-                                         ${CONTROL_COND} \
-                                         ${EXPERIMENTAL_COND} \
-                                         ${FOLD_CHANGE} \
-                                         ${Q_VALUE} \
-                                         ${LOC_SAMPLES[$i]}
+                                         ${INCLUDED_CONTROL} \
+                                         ${LOC_CHIP_SAMPLES[$i]} \
+                                         NULL \
+                                         ${LOC_CONTROL_SAMPLES[$i]} \
+                                         NULL \
+                                         $(($i +1))
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
           bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
@@ -274,7 +273,9 @@ echo "Final output generation"
 
 if [ ${NUM_REPLICATES} -gt 1 ]
 then
-   cd ../../results
+   pwd
+   cd ../results
+   pwd
    cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
    for  i in `seq 2 ${NUM_REPLICATES}`
    do
