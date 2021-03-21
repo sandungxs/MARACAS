@@ -17,6 +17,7 @@ CHIP_RIGHT=${9}
 CONTROL_LEFT=${10}
 CONTROL_RIGHT=${11}
 CURRENT_REPLICATE=${12}
+MODE=${13}
 
 echo "DATA" $DATA
 echo "PAIRED" $PAIRED
@@ -98,18 +99,19 @@ if [ $PAIRED == "yes" ]
 then
    fastqc chip_1.fastq
    fastqc chip_2.fastq
-   bowtie2 -x $INDEX -1 chip_1.fastq -2 chip_2.fastq -S raw_chip.sam &> mapping_stats
+   bowtie2 -x $INDEX -1 chip_1.fastq -2 chip_2.fastq -S raw_chip.sam &> chip_mapping_stats_${CURRENT_REPLICATE}
    if [ $CONTROL == "yes" ]
    then
-      bowtie2 -x $INDEX -1 control_1.fastq -2 control_2.fastq -S raw_control.sam &> mapping_stats
+      bowtie2 -x $INDEX -1 control_1.fastq -2 control_2.fastq -S raw_control.sam &> control_mapping_stats_${CURRENT_REPLICATE}
    fi
 else
    fastqc chip_1.fastq
-   bowtie2 -x $INDEX -U chip_1.fastq -S raw_chip.sam &> mapping_stats
+   bowtie2 -x $INDEX -U chip_1.fastq -S raw_chip.sam &> chip_mapping_stats_${CURRENT_REPLICATE}
 
    if [ $CONTROL == "yes" ]
    then
-      bowtie2 -x $INDEX -U control_1.fastq -S raw_control.sam &> mapping_stats
+      fastqc control_1.fastq
+      bowtie2 -x $INDEX -U control_1.fastq -S raw_control.sam &> control_mapping_stats_${CURRENT_REPLICATE}
    fi
 fi
 
@@ -119,7 +121,7 @@ samtools fixmate -m raw_chip_sorted.bam chip_fixmate.bam
 samtools sort -m 2G -o chip_dup_sorted.bam chip_fixmate.bam 
 samtools markdup -r chip_dup_sorted.bam chip.bam
 samtools index chip.bam
-bamCoverage -bs 10 --normalizeUsing CPM --bam chip.bam -o chip.bw
+bamCoverage -bs 5 --normalizeUsing CPM --bam chip.bam -o chip_${CURRENT_REPLICATE}.bw
 
 if [ $CONTROL == "yes" ]
 then
@@ -128,7 +130,7 @@ then
    samtools sort -m 2G -o control_dup_sorted.bam control_fixmate.bam 
    samtools markdup -r control_dup_sorted.bam control.bam
    samtools index control.bam
-   bamCoverage -bs 10 --normalizeUsing CPM --bam control.bam -o control.bw
+   bamCoverage -bs 5 --normalizeUsing CPM --bam control.bam -o control_${CURRENT_REPLICATE}.bw
 fi
 
 ## Remove files
@@ -138,11 +140,31 @@ rm *fixmate*
 rm *dup_sorted*
 
 ## Peak calling 
-if [ $CONTROL == "yes" ]
+if [ $MODE == "histone_modification" ]
 then
-   echo "Peak calling with control sample"
-   macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE} --nomodel &> macs_output
+
+   if [ $CONTROL == "yes" ]
+   then
+      echo "Peak calling with control sample"
+      macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE} --nomodel &> macs_output
+   else
+      echo "Peak calling without control sample"
+      macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE} --nomodel  &> macs_output
+   fi
+
+elif [ $MODE == "transcription_factor" ]
+then
+   if [ $CONTROL == "yes" ]
+   then
+      echo "Peak calling with control sample"
+      macs2 callpeak -t chip.bam -c control.bam -f BAM --outdir . -n replicate_${CURRENT_REPLICATE} &> macs_output
+   else
+      echo "Peak calling without control sample"
+      macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE} &> macs_output
+   fi
+
 else
-   echo "Peak calling without control sample"
-   macs2 callpeak -t chip.bam -f BAM --outdir. -n replicate_${CURRENT_REPLICATE} --nomodel  &> macs_output
+   echo "Incorrect value for MODE " $MODE
+   echo "Only histone_modification or transcription_factor are allowed"
+   exit
 fi

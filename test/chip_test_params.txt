@@ -7,7 +7,8 @@ main_folder: chip_test
 number_of_replicates: 2
 included_control: yes
 paired_end: FALSE
-sample_name: H3K4me3_before_starvation
+mode: histone_modification
+histone_modification: H3K4me3
 loc_chip_replicate_1: /home/fran/Dropbox/github_repos/MARACAS/test/chip_chromosome1_1.fq.gz 
 loc_control_replicate_1: /home/fran/Dropbox/github_repos/MARACAS/test/control_chromosome1_1.fq.gz
 loc_chip_replicate_2: /home/fran/Dropbox/github_repos/MARACAS/test/chip_chromosome1_2.fq.gz

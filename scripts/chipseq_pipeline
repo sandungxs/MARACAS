@@ -105,6 +105,26 @@ ARCH=$(grep cluster: $PARAMS | awk '{ print $2}')
 ## Load parameter with the number of processors
 NPROC=$(grep number_processors: $PARAMS | awk '{ print $2}')
 
+## Load parameter to indicate if the ChIPseq data has been generated for an
+## histone modification or transcription factor
+
+MODE=$(grep mode: $PARAMS | awk '{ print $2 }')
+
+## Load parameter with histone modification or transcription factor name
+if [ $MODE == "histone_modification" ]
+then
+   HISTONE=$(grep histone_modification: $PARAMS | awk '{ print $2 }')
+   TF=NULL
+elif [ $MODE == "transcription_factor" ]
+then
+   HISTONE=NULL
+   TF=$(grep transcription_factor: $PARAMS | awk '{ print $2 }')
+else
+   echo "Incorrect value for MODE " $MODE
+   echo "Only histone_modification or transcription_factor"
+   exit
+fi
+
 echo "The following parameters were loaded."
 echo " - Installation directory: " $INS_DIR
 echo " - Working directory: " $WD
@@ -232,6 +252,7 @@ then
                                          ${CONTROL_SAMPLES[$i]} \
                                          NULL \
                                          $(($i +1))
+                                         $MODE
          fi
      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
      then
@@ -245,7 +266,8 @@ then
                                          NULL \
                                          ${LOC_CONTROL_SAMPLES[$i]} \
                                          NULL \
-                                         $(($i +1))
+                                         $(($i +1)) \
+                                         $MODE
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
           bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
@@ -260,7 +282,8 @@ then
                                          ${FOLD_CHANGE} \
                                          ${Q_VALUE} \
                                          ${LOC_SAMPLES_LEFT[$i]} \
-                                         ${LOC_SAMPLES_RIGHT[$i]}
+                                         ${LOC_SAMPLES_RIGHT[$i]} \
+                                         $MODE
       fi
 
       echo "- Replicate " $(($i + 1)) " processed"
@@ -273,23 +296,47 @@ echo "Final output generation"
 
 if [ ${NUM_REPLICATES} -gt 1 ]
 then
-   pwd
    cd ../results
-   pwd
    cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
-   for  i in `seq 2 ${NUM_REPLICATES}`
+   bigwigCompare -b1 ../replicates/replicate_1/chip_1.bw -b2 ../replicates/replicate_2/chip_2.bw \
+                 --scaleFactors 1:1 --operation add \
+                 --binSize 5 --outFileName sum_chip.bw \
+                 --outFileFormat bigwig 
+   for  i in `seq 3 ${NUM_REPLICATES}`
    do
       intersectBed -a acum_peaks.narrowPeak -b ../replicates/replicate_$i/replicate_${i}_peaks.narrowPeak > acum_peaks_2.narrowPeak
       rm acum_peaks.narrowPeak
       mv acum_peaks_2.narrowPeak acum_peaks.narrowPeak
+
+      cp sum_chip.bw cp_sum_chip.bw
+      rm sum_chip.bw
+      bigwigCompare -b1 ../replicates/replicate_$i/chip_$i.bw -b2 cp_sum_chip.bw \
+                    --scaleFactors 1:1 --operation add \
+                    --binSize 5 --outFileName sum_chip.bw \
+                    --outFileFormat bigwig
+      rm cp_sum_chip.bw 
+
    done
    mv acum_peaks.narrowPeak output_peaks.narrowPeak
+
+   SCALEFACTOR=$(echo "1/(2*${NUM_REPLICATES})" | bc -l)
+   bigwigCompare -b1 sum_chip.bw -b2 sum_chip.bw \
+                 --scaleFactors $SCALEFACTOR:$SCALEFACTOR --operation add \
+                 --binSize 5 --outFileName chip_average.bw \
+                 --outFileFormat bigwig 
+   
 else
    cp replicate_${CURRENT_REPLICATE}_peaks.narrowPeak ../../results/output_peaks.narrowPeak
 fi
 
-echo "Here Rscript to be launched"
+if [ $MODE == "histone_modification" ]
+then
+   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $HISTONE ${NUM_REPLICATES} ${INCLUDED_CONTROL}
+elif [ $MODE == "transcription_factor" ]
+then
+   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $TF ${NUM_REPLICATES} ${INCLUDED_CONTROL}
+fi
 
-
-
+Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'pdf_document')" 
+Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'html_document')"
 
