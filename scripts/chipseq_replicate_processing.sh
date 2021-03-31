@@ -19,27 +19,33 @@ CONTROL_RIGHT=${11}
 CURRENT_REPLICATE=${12}
 MODE=${13}
 
-echo "DATA" $DATA
-echo "PAIRED" $PAIRED
-echo "replicate folder" ${REPLICATE_FOLDER}
-echo "index" $INDEX
-echo "number replicates" ${NUM_REPLICATES}
-echo "instalation" $INS
-echo "control" $CONTROL
-echo "chip left" ${CHIP_LEFT}
-echo "chip right" ${CHIP_RIGHT}
-echo "control left" ${CONTROL_LEFT}
-echo "control right" ${CONTROL_RIGHT}
+##echo "DATA" $DATA
+##echo "PAIRED" $PAIRED
+##echo "replicate folder" ${REPLICATE_FOLDER}
+##echo "index" $INDEX
+##echo "number replicates" ${NUM_REPLICATES}
+##echo "instalation" $INS
+##echo "control" $CONTROL
+##echo "chip left" ${CHIP_LEFT}
+##echo "chip right" ${CHIP_RIGHT}
+##echo "control left" ${CONTROL_LEFT}
+##echo "control right" ${CONTROL_RIGHT}
 
 ## Downloading or copying sample file depending on data source
-echo "access " ${REPLICATE_FOLDER}
-echo "chip left " ${CHIP_LEFT}
-echo "control left " ${CONTROL_LEFT}
+##echo "access " ${REPLICATE_FOLDER}
+##echo "chip left " ${CHIP_LEFT}
+##echo "control left " ${CONTROL_LEFT}
 
 cd ${REPLICATE_FOLDER}
 
 if [ $DATA == "DB" ]
 then
+
+   echo ""
+   echo "*******************************************"
+   echo "* DOWNLOADING FASTQ FILES FOR CHIP SAMPLE *"
+   echo "*******************************************"
+   echo ""
 
    fastq-dump --split-files ${CHIP_LEFT}
    if [ $PAIRED == "FALSE" ]
@@ -51,8 +57,21 @@ then
       mv ${CHIP_LEFT}_2.fastq chip_2.fastq
    fi
 
+   echo ""
+   echo "********************************************"
+   echo "* FASTQ FILES FOR CHIP SAMPLE DOWNLOADED!! *"
+   echo "********************************************"
+   echo ""
+
    if [ $CONTROL == "yes" ]
    then
+
+      echo ""
+      echo "********************************************"
+      echo "* DOWNLOADING FASTQ FILES FOR INPUT SAMPLE *"
+      echo "********************************************"
+      echo ""
+
       fastq-dump --split-files ${CONTROL_LEFT}
       if [ $PAIRED == "FALSE" ]
       then
@@ -62,22 +81,62 @@ then
          mv ${CONTROL_LEFT}_1.fastq control_1.fastq
          mv ${CONTROL_LEFT}_2.fastq control_2.fastq
       fi
+
+      echo ""
+      echo "**********************************************"
+      echo "* FASTQ FILES FOR INPUT SAMPLE DOWNLOADED !! *"
+      echo "**********************************************"
+      echo ""
+
    fi
 
 elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
 then
 
+   echo ""
+   echo "***************************************"
+   echo "* COPYING FASTQ FILES FOR CHIP SAMPLE *"
+   echo "***************************************"
+   echo ""
+
    cp ${CHIP_LEFT} chip_1.fastq.gz
    gunzip chip_1.fastq.gz
    ACC_NUMBER=chip
+
+   echo ""
+   echo "**********************************************"
+   echo "* COPYING FASTQ FILES FOR CHIP SAMPLE DONE!! *"
+   echo "**********************************************"
+   echo ""
+
    if [ $CONTROL == "yes" ]
    then
+
+      echo ""
+      echo "*****************************************"
+      echo "* COPYING FASTQ FILES FOR INPUT SAMPLE  *"
+      echo "*****************************************"
+      echo ""
+
       cp ${CONTROL_LEFT} control_1.fastq.gz
       gunzip control_1.fastq.gz
+
+      echo ""
+      echo "************************************************"
+      echo "* COPYING FASTQ FILES FOR INPUT SAMPLE DONE !! *"
+      echo "************************************************"
+      echo ""
+
    fi
 
 elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
 then
+
+   echo ""
+   echo "***************************************"
+   echo "* COPYING FASTQ FILES FOR CHIP SAMPLE *"
+   echo "***************************************"
+   echo ""
 
    cp ${CHIP_LEFT} chip_1.fastq.gz
    gunzip chip_1.fastq.gz
@@ -85,14 +144,40 @@ then
    gunzip chip_2.fastq.gz
    ACC_NUMBER=chip
 
+   echo ""
+   echo "***********************************************"
+   echo "* COPYING FASTQ FILES FOR CHIP SAMPLE DONE !! *"
+   echo "***********************************************"
+   echo ""
+
    if [ $CONTROL == "yes" ]
    then
+
+      echo ""
+      echo "*****************************************"
+      echo "* COPYING FASTQ FILES FOR INPUT SAMPLE  *"
+      echo "*****************************************"
+      echo ""
+
       cp ${CONTROL_LEFT} control_1.fastq.gz
       gunzip control_1.fastq.gz
       cp ${CONTROL_RIGHT} control_2.fastq.gz
       gunzip control_2.fastq.gz
+
+      echo ""
+      echo "************************************************"
+      echo "* COPYING FASTQ FILES FOR INPUT SAMPLE DONE !! *"
+      echo "************************************************"
+      echo ""
+
    fi
 fi
+
+echo ""
+echo "********************************************************"
+echo "* QUALITY CONTROL AND READ MAPPING TO REFERENCE GENOME *"
+echo "********************************************************"
+echo ""
 
 ## Sample quality control and read mapping to reference genome. 
 if [ $PAIRED == "yes" ]
@@ -114,6 +199,18 @@ else
       bowtie2 -x $INDEX -U control_1.fastq -S raw_control.sam &> control_mapping_stats_${CURRENT_REPLICATE}
    fi
 fi
+
+echo ""
+echo "************************"
+echo "* READ MAPPING DONE !! *"
+echo "************************"
+echo ""
+
+echo ""
+echo "************************************************"
+echo "* PCR REMOVAL, BAM and BIGWIG FILES GENERATION *"
+echo "************************************************"
+echo ""
 
 ## Duplicates removal and bw generation
 samtools sort -n -m 2G -o raw_chip_sorted.bam raw_chip.sam
@@ -138,6 +235,18 @@ rm *.sam
 rm *.fastq
 rm *fixmate*
 rm *dup_sorted*
+
+echo ""
+echo "**************************************"
+echo "* BAM AND BIGWIG FILES GENERATED !!! *"
+echo "**************************************"
+echo ""
+
+echo ""
+echo "****************"
+echo "* PEAK CALLING *"
+echo "****************"
+echo ""
 
 ## Peak calling 
 if [ $MODE == "histone_modification" ]
@@ -168,3 +277,9 @@ else
    echo "Only histone_modification or transcription_factor are allowed"
    exit
 fi
+
+echo ""
+echo "************************"
+echo "* PEAK CALLING DONE !!!*"
+echo "************************"
+echo ""

@@ -9,7 +9,59 @@
 ## Input file name
 PARAMS=$1
 
-echo "Loading parameters from file " $PARAMS " ... "
+echo ""
+echo "                     .=====.                             "
+echo "                    /  9  9 \                            "
+echo "                   (         )                           "
+echo "                    \  \__/ /                            "
+echo "                     \_____/                             "
+echo " _____________OOOO_____|_|___________________________    "
+echo "/                                                    \   "
+echo "|             WELCOME TO OUR TOOL                    |   "
+echo "| MARACAS (MicroAlgae RnA-seq and Chip-seq AnalysiS) |   "
+echo "|     This is the ChIP-seq Data Analysis Pipeline    |   "
+echo "|    Specifically Design to Support the Microalgae   |   "
+echo "|      Resarch Community to Exploit Omics Data       |   "
+echo "|                                                    |   "
+echo "|        Ubuntu means I am because we are            |   "
+echo "|           Nelson Mandela (1918 - 2013)             |   "     
+echo "\_______________________________OOOO_________________/   "
+echo "                     |  |  |                             "
+echo "                     |__|__|                             "
+echo "                     |  |  |                             "
+echo "                     |  |  |                             "
+echo "                     |__|__|                             "
+echo "                     /  X  \                             "
+echo "                    (__/ \__)                            "
+echo ""
+echo ""
+
+sleep 10s
+
+echo "                                                          "
+if [ $# -ne 1 ];
+then
+   echo "Error: Wrong number of parameters."
+   echo ""
+   echo ""
+   echo "Usage: chipseq_pipeline <param_file>"
+   echo ""
+   echo "param_file: A file specifying the parameters for the ChIP-seq "
+   echo "             Data Analysis Pipeline. The folder test contains "
+   echo "             several examples such as chip_test_params.txt. Check "
+   echo "             the README file for details on how to write the "
+   echo "             paramater file."
+
+   exit
+fi
+
+echo ""
+echo "------------------------------------------------------"
+echo "------------------------------------------------------"
+echo "|| STEP 1: LOADING PARAMETERS FROM FILE " $PARAMS "   "
+echo "------------------------------------------------------"
+echo "------------------------------------------------------" 
+echo ""
 
 ## Load installation directory
 INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
@@ -125,6 +177,8 @@ else
    exit
 fi
 
+echo ""
+echo "---------------------------------------------------"
 echo "The following parameters were loaded."
 echo " - Installation directory: " $INS_DIR
 echo " - Working directory: " $WD
@@ -132,22 +186,41 @@ echo " - Main folder: " $MAIN_FOLDER
 echo " - Number of replicates: " $NUM_REPLICATES
 echo " - Sample name: " ${SAMPLE_NAME}
 echo " - Microalgae: " $MICROALGAE
+echo " - Control Input/mock: " ${INCLUDED_CONTROL}
+echo " - Architecture where script will be run: " $ARCH
+echo " - Number of processors: " $NPROC
+echo " - ChIP-seq data for a " $MODE 
+echo " - Histone modification or Transcription factor: " 
 
-if [ $DATA == "DB" ]
+if [ $MODE == "histone_modification" ]
 then
-        echo " - Sample accession numbers: " ${CHIP_SAMPLES[@]} ${CONTROL_SAMPLES[@]}
-else
-        echo " - Sample locations: " ${LOC_SAMPLES[@]}
+   echo "      " $HISTONE
+elif [ $MODE == "transcription_factor" ]
+then
+   echo "      " $TF
 fi
 
-echo " "
+echo " - Samples loaded: "
+if [ $DATA == "DB" ]
+then
+        echo "      Sample accession numbers: " ${CHIP_SAMPLES[@]} ${CONTROL_SAMPLES[@]}
+else
+        echo "      Sample locations: " ${LOC_SAMPLES[@]}
+fi
+
+echo "---------------------------------------------------"
+echo ""
 
 
 ## Generate working directory structure
 
-#echo ""
-#echo "-------------------------------------------------------------------"
-#echo "Generating working directory structure"
+echo ""
+echo "------------------------------------------------------------"
+echo "------------------------------------------------------------"
+echo "|| STEP 2: GENERATION OF THE WORKING DIRECTORY ESTRUCTURE ||"
+echo "------------------------------------------------------------"
+echo "------------------------------------------------------------"
+echo ""
 
 ## Access working directory
 cd $WD
@@ -166,13 +239,22 @@ for i in `seq 1 ${NUM_REPLICATES}`
 do
    mkdir replicate_$i
 done
-echo "Working directory generated"
-echo " "
+
+echo ""
+echo "* Working Directory Structure Generated!"
+echo ""
 
 ## Parallel sample processing
 if [ $ARCH == "SGE" ]
 then
-   echo "Parallel replicate processing"
+   echo ""
+   echo "--------------------------------------------------"
+   echo "--------------------------------------------------"
+   echo "|| STEP 3: PARALLEL SAMPLE PROCESSING USING SGE ||"
+   echo "--------------------------------------------------"
+   echo "--------------------------------------------------"
+   echo ""
+
    for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
       if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
@@ -231,12 +313,22 @@ then
 elif [ $ARCH == "SERVER" ]
 then
 
-   echo "Sequential replicate processing"
+   echo ""
+   echo "-----------------------------------------"
+   echo "-----------------------------------------"
+   echo "| STEP 3: SEQUENTIAL SAMPLE PROCESSING ||"
+   echo "-----------------------------------------"
+   echo "-----------------------------------------"
    echo ""
 
    for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
-      echo "- Replicate " $(($i + 1)) " processing"
+      echo ""
+      echo "*************************"
+      echo "* Processing Sample " $(($i + 1)) 
+      echo "*************************"
+      echo ""
+
       if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
       then
          if [ $PAIRED == "FALSE" ]
@@ -286,13 +378,27 @@ then
                                          $MODE
       fi
 
-      echo "- Replicate " $(($i + 1)) " processed"
+      echo ""
+      echo "*************************************"
+      echo "* Sample " $(($i + 1)) " Processed! *" 
+      echo "*************************************"
+      echo ""
    done
 fi
 
-echo "Samples processing finished"
 echo ""
-echo "Final output generation"
+echo "***********************************"
+echo "* ALL SAMPLES HAS BEEN PROCESSED! *"
+echo "***********************************"
+echo ""
+
+echo ""
+echo "----------------------------------------------"
+echo "----------------------------------------------"
+echo "|| STEP 4: FINAL RESULT REPORT GENERATIONn. ||"
+echo "----------------------------------------------"
+echo "----------------------------------------------"
+echo ""
 
 if [ ${NUM_REPLICATES} -gt 1 ]
 then
@@ -340,3 +446,28 @@ fi
 Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'pdf_document')" 
 Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'html_document')"
 
+echo ""
+echo ""
+echo "**************************************************************************************************************"
+echo "*                                    ANALYSIS DONE!!!                                                        *"
+echo "* OUTPUT REPORTS IN HTML AND PDF FORMATS HAVE BEEN GENERATED IN THE FOLDER $WD/${MAIN_FOLDER}/results"
+echo "*                                  ENJOY YOUR RESULTS!!!                                                     *"
+echo "**************************************************************************************************************"
+echo ""
+echo ""
+echo ""
+echo "                                    ░░░░░░░░░░░░░░░░░░░░░░█████████"
+echo "                                    ░░███████░░░░░░░░░░███▒▒▒▒▒▒▒▒███"
+echo "                                    ░░█▒▒▒▒▒▒█░░░░░░░███▒▒▒▒▒▒▒▒▒▒▒▒▒███"
+echo "                                    ░░░█▒▒▒▒▒▒█░░░░██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
+echo "                                    ░░░░█▒▒▒▒▒█░░░██▒▒▒▒▒██▒▒▒▒▒▒██▒▒▒▒▒███"
+echo "                                    ░░░░░█▒▒▒█░░░█▒▒▒▒▒▒████▒▒▒▒████▒▒▒▒▒▒██"
+echo "                                    ░░░█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
+echo "                                    ░░░█▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒██"
+echo "                                    ░██▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒██▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██"
+echo "                                    ██▒▒▒███████████▒▒▒▒▒██▒▒▒▒▒▒▒▒██▒▒▒▒▒██"
+echo "                                    █▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒████████▒▒▒▒▒▒▒██"
+echo "                                    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
+echo "                                    ░█▒▒▒███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
+echo "                                    ░██▒▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█"
+echo "                                    ░░████████████░░░█████████████████"

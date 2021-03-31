@@ -9,6 +9,34 @@
 ## Input file name
 PARAMS=$1
 
+echo "                   ^^^^^^^^^^^                           "
+echo "                  &&&.=====.&&&                          "
+echo "                 &&&&  6  6 &&&&                         "
+echo "                &&&&         &&&&                        "
+echo "                &&&&\  \__/ /&&&&                        "
+echo "                     \_____/                             "
+echo " _____________OOOO_____|_|___________________________    "
+echo "/                                                    \   "
+echo "|             WELCOME TO OUR TOOL                    |   "
+echo "| MARACAS (MicroAlgae RnA-seq and Chip-seq AnalysiS) |   "
+echo "|     This is the RNA-seq Data Analysis Pipeline     |   "
+echo "|    Specifically Design to Support the Microalgae   |   "
+echo "|      Resarch Community to Exploit Omics Data       |   "
+echo "|                                                    |   "
+echo "|        Ubuntu means I am because we are            |   "
+echo "|           Nelson Mandela (1918 - 2013)             |   "     
+echo "\_______________________________OOOO_________________/   "
+echo "                   /    |    \                           "
+echo "                   |    |    |                           "
+echo "                   /    |    \                           "
+echo "                  /     |     \                          "
+echo "                  |_____|_____|                          "
+echo "                     /  X  \                             "
+echo "                    (__/ \__)                            "
+echo ""
+echo ""
+
+
 echo "Loading parameters from file " $PARAMS " ... "
 
 ## Load installation directory
