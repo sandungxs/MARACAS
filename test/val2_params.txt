@@ -1,0 +1,16 @@
+installation_directory: /home/fran/research/MARACAS/
+data_source: DB
+cluster: SLURM
+number_processors: 5
+working_directory: /home/fran/tmp
+microalgae: arabidopsis_thaliana
+main_folder: val2
+number_of_replicates: 2
+included_control: yes
+paired_end: TRUE
+mode: transcription_factor
+transcription_factor: VAL2
+chip_replicate_1: SRR11095965  
+control_replicate_1: SRR11095967
+chip_replicate_2: SRR11095966 
+control_replicate_2: SRR11095967

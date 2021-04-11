@@ -245,7 +245,94 @@ echo "* Working Directory Structure Generated!"
 echo ""
 
 ## Parallel sample processing
-if [ $ARCH == "SGE" ]
+if [ $ARCH == "SLURM" ]
+then
+   echo ""
+   echo "----------------------------------------------------"
+   echo "----------------------------------------------------"
+   echo "|| STEP 3: PARALLEL SAMPLE PROCESSING USING SLURM ||"
+   echo "----------------------------------------------------"
+   echo "----------------------------------------------------"
+   echo ""
+
+   for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
+   do
+      echo ""
+      echo "*************************"
+      echo "* Processing Sample " $(($i + 1)) 
+      echo "*************************"
+      echo ""
+
+      cd $WD/${MAIN_FOLDER}/replicates/replicate_$(($i + 1))
+
+      if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
+      then
+         sbatch ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+                                         $WD ${MAIN_FOLDER} \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         ${NUM_REPLICATES} \
+                                         ${INS_DIR} \
+                                         ${INCLUDED_CONTROL} \
+                                         ${CHIP_SAMPLES[$i]} \
+                                         NULL \
+                                         ${CONTROL_SAMPLES[$i]} \
+                                         NULL \
+                                         $(($i +1)) \
+                                         $MODE \
+                                         $NPROC \
+                                         $ARCH \
+                                         $MICROALGAE \
+                                         $HISTONE \
+                                         $TF
+     elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+     then
+         sbatch ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+                                         $WD ${MAIN_FOLDER} \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         ${NUM_REPLICATES} \
+                                         ${INS_DIR} \
+                                         ${INCLUDED_CONTROL} \
+                                         ${LOC_CHIP_SAMPLES[$i]} \
+                                         NULL \
+                                         ${LOC_CONTROL_SAMPLES[$i]} \
+                                         NULL \
+                                         $(($i +1)) \
+                                         $MODE \
+                                         $NPROC \
+                                         $ARCH \
+                                         $MICROALGAE \
+                                         $HISTONE \
+                                         $TF
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+      then
+          sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                                         $WD ${MAIN_FOLDER} \
+                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         ${NUM_SAMPLES} \
+                                         ${INS_DIR} \
+                                         $WD/${MAIN_FOLDER} \
+                                         ${CONTROL_COND} \
+                                         ${EXPERIMENTAL_COND} \
+                                         ${FOLD_CHANGE} \
+                                         ${Q_VALUE} \
+                                         ${LOC_SAMPLES_LEFT[$i]} \
+                                         ${LOC_SAMPLES_RIGHT[$i]} \
+                                         $MODE \
+                                         $NPROC \
+                                         $ARCH \
+                                         $MICROALGAE \
+                                         $HISTONE \
+                                         $TF
+      fi
+      echo ""
+      echo "**************************************************"
+      echo "* Sample " $(($i + 1)) " submitted to the queue! *" 
+      echo "**************************************************"
+      echo ""
+   done
+
+elif [ $ARCH == "SGE" ]
 then
    echo ""
    echo "--------------------------------------------------"
@@ -262,7 +349,7 @@ then
          if [ $PAIRED == "FALSE" ]
          then
          qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
-                                         $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) \
+                                         $WD ${MAIN_FOLDER} \
                                          ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
                                          ${INS_DIR} \
@@ -277,7 +364,7 @@ then
       elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
       then
          qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
-                                         $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                         $WD ${MAIN_FOLDER} \
                                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
                                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                          ${NUM_SAMPLES} \
@@ -291,7 +378,7 @@ then
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
                 qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
-                                                $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                                $WD ${MAIN_FOLDER} \
                                                 ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
                                                 ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                                 ${NUM_SAMPLES} \
@@ -314,11 +401,11 @@ elif [ $ARCH == "SERVER" ]
 then
 
    echo ""
-   echo "-----------------------------------------"
-   echo "-----------------------------------------"
-   echo "| STEP 3: SEQUENTIAL SAMPLE PROCESSING ||"
-   echo "-----------------------------------------"
-   echo "-----------------------------------------"
+   echo "------------------------------------------"
+   echo "------------------------------------------"
+   echo "|| STEP 3: SEQUENTIAL SAMPLE PROCESSING ||"
+   echo "------------------------------------------"
+   echo "------------------------------------------"
    echo ""
 
    for  i in `seq 0 $((${NUM_REPLICATES} - 1))`
@@ -331,10 +418,8 @@ then
 
       if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
       then
-         if [ $PAIRED == "FALSE" ]
-         then
          bash ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
-                                         $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) \
+                                         $WD ${MAIN_FOLDER} \
                                          ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
                                          ${INS_DIR} \
@@ -343,13 +428,14 @@ then
                                          NULL \
                                          ${CONTROL_SAMPLES[$i]} \
                                          NULL \
-                                         $(($i +1))
-                                         $MODE
-         fi
+                                         $(($i +1)) \
+                                         $MODE \
+                                         $NPROC\
+                                         $ARCH
      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
      then
          bash ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
-                                         $WD/${MAIN_FOLDER}/replicates/replicate_$(($i +1)) \
+                                         $WD ${MAIN_FOLDER} \
                                          ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
                                          ${INS_DIR} \
@@ -359,11 +445,13 @@ then
                                          ${LOC_CONTROL_SAMPLES[$i]} \
                                          NULL \
                                          $(($i +1)) \
-                                         $MODE
+                                         $MODE \
+                                         $NPROC \
+                                         $ARCH
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
           bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
-                                         $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                                         $WD ${MAIN_FOLDER} \
                                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
                                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                          ${NUM_SAMPLES} \
@@ -375,7 +463,9 @@ then
                                          ${Q_VALUE} \
                                          ${LOC_SAMPLES_LEFT[$i]} \
                                          ${LOC_SAMPLES_RIGHT[$i]} \
-                                         $MODE
+                                         $MODE \
+                                         $NPROC \
+                                         $ARCH
       fi
 
       echo ""
@@ -384,90 +474,89 @@ then
       echo "*************************************"
       echo ""
    done
+
+   echo ""
+   echo "***********************************"
+   echo "* ALL SAMPLES HAS BEEN PROCESSED! *"
+   echo "***********************************"
+   echo ""
+
+   echo "------------------------"
+echo "antes"
+echo "WD=" $WD
+echo "MAIN_FOLDER=" ${MAIN_FOLDER}
+echo "NUM_REPLICATES=" ${NUM_REPLICATES}
+echo "MODE=" $MODE
+echo "INS_DIR=" ${INS_DIR}
+echo "MICRO=" $MICROALGAE
+echo "HISTONE=" $HISTONE
+echo "TF=" $TF
+echo "INCLUDED_CONTROL=" ${INCLUDED_CONTROL}
+echo "NPROC=" $NPROC
+echo "----------------------"
+
+
+
+   if [ $MODE == "histone_modification" ]
+   then
+      bash ${INS_DIR}/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
+                                                       $MODE ${INS_DIR} $MICROALGAE $HISTONE $HISTONE \
+                                                       ${INCLUDED_CONTROL} $NPROC
+   elif [ $MODE == "transcription_factor" ]
+   then
+      bash ${INS_DIR}/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
+                                                       $MODE ${INS_DIR} $MICROALGAE $TF $TF \
+                                                       ${INCLUDED_CONTROL} $NPROC
+   fi
 fi
 
-echo ""
-echo "***********************************"
-echo "* ALL SAMPLES HAS BEEN PROCESSED! *"
-echo "***********************************"
-echo ""
 
-echo ""
-echo "----------------------------------------------"
-echo "----------------------------------------------"
-echo "|| STEP 4: FINAL RESULT REPORT GENERATIONn. ||"
-echo "----------------------------------------------"
-echo "----------------------------------------------"
-echo ""
 
-if [ ${NUM_REPLICATES} -gt 1 ]
-then
-   cd ../results
-   cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
-   bigwigCompare -b1 ../replicates/replicate_1/chip_1.bw -b2 ../replicates/replicate_2/chip_2.bw \
-                 --scaleFactors 1:1 --operation add \
-                 --binSize 5 --outFileName sum_chip.bw \
-                 --outFileFormat bigwig 
-   for  i in `seq 3 ${NUM_REPLICATES}`
-   do
-      intersectBed -a acum_peaks.narrowPeak -b ../replicates/replicate_$i/replicate_${i}_peaks.narrowPeak > acum_peaks_2.narrowPeak
-      rm acum_peaks.narrowPeak
-      mv acum_peaks_2.narrowPeak acum_peaks.narrowPeak
+#if [ ${NUM_REPLICATES} -gt 1 ]
+#then
+#   cd ../results
+#   cp ../replicates/replicate_1/replicate_1_peaks.narrowPeak acum_peaks.narrowPeak
+#   bigwigCompare -b1 ../replicates/replicate_1/chip_1.bw -b2 ../replicates/replicate_2/chip_2.bw \
+#                 --scaleFactors 1:1 --operation add \
+#                 --binSize 5 --outFileName sum_chip.bw \
+#                 --outFileFormat bigwig 
+#   for  i in `seq 3 ${NUM_REPLICATES}`
+#   do
+#      intersectBed -a acum_peaks.narrowPeak -b ../replicates/replicate_$i/replicate_${i}_peaks.narrowPeak > acum_peaks_2.narrowPeak
+#      rm acum_peaks.narrowPeak
+#      mv acum_peaks_2.narrowPeak acum_peaks.narrowPeak
+#
+#      cp sum_chip.bw cp_sum_chip.bw
+#      rm sum_chip.bw
+#      bigwigCompare -b1 ../replicates/replicate_$i/chip_$i.bw -b2 cp_sum_chip.bw \
+#                    --scaleFactors 1:1 --operation add \
+#                    --binSize 5 --outFileName sum_chip.bw \
+#                    --outFileFormat bigwig
+#      rm cp_sum_chip.bw 
+#
+#   done
+#   mv acum_peaks.narrowPeak output_peaks.narrowPeak
+#
+   ## Add bc dependency
+#   SCALEFACTOR=$(echo "1/(2*${NUM_REPLICATES})" | bc -l)
+#   bigwigCompare -b1 sum_chip.bw -b2 sum_chip.bw \
+#                 --scaleFactors $SCALEFACTOR:$SCALEFACTOR --operation add \
+#                 --binSize 5 --outFileName chip_average.bw \
+#                 --outFileFormat bigwig 
+#else
+#   cp replicate_${CURRENT_REPLICATE}_peaks.narrowPeak ../../results/output_peaks.narrowPeak
+#fi
 
-      cp sum_chip.bw cp_sum_chip.bw
-      rm sum_chip.bw
-      bigwigCompare -b1 ../replicates/replicate_$i/chip_$i.bw -b2 cp_sum_chip.bw \
-                    --scaleFactors 1:1 --operation add \
-                    --binSize 5 --outFileName sum_chip.bw \
-                    --outFileFormat bigwig
-      rm cp_sum_chip.bw 
+#if [ $MODE == "histone_modification" ]
+#then
+#   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $HISTONE ${NUM_REPLICATES} ${INCLUDED_CONTROL}
+#elif [ $MODE == "transcription_factor" ]
+#then
+#   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $TF ${NUM_REPLICATES} ${INCLUDED_CONTROL}
+#fi
 
-   done
-   mv acum_peaks.narrowPeak output_peaks.narrowPeak
-
-   SCALEFACTOR=$(echo "1/(2*${NUM_REPLICATES})" | bc -l)
-   bigwigCompare -b1 sum_chip.bw -b2 sum_chip.bw \
-                 --scaleFactors $SCALEFACTOR:$SCALEFACTOR --operation add \
-                 --binSize 5 --outFileName chip_average.bw \
-                 --outFileFormat bigwig 
-   
-else
-   cp replicate_${CURRENT_REPLICATE}_peaks.narrowPeak ../../results/output_peaks.narrowPeak
-fi
-
-if [ $MODE == "histone_modification" ]
-then
-   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $HISTONE ${NUM_REPLICATES} ${INCLUDED_CONTROL}
-elif [ $MODE == "transcription_factor" ]
-then
-   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $TF ${NUM_REPLICATES} ${INCLUDED_CONTROL}
-fi
-
-Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'pdf_document')" 
-Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'html_document')"
-
-echo ""
-echo ""
-echo "**************************************************************************************************************"
-echo "*                                    ANALYSIS DONE!!!                                                        *"
-echo "* OUTPUT REPORTS IN HTML AND PDF FORMATS HAVE BEEN GENERATED IN THE FOLDER $WD/${MAIN_FOLDER}/results"
-echo "*                                  ENJOY YOUR RESULTS!!!                                                     *"
-echo "**************************************************************************************************************"
-echo ""
-echo ""
-echo ""
-echo "                                    ░░░░░░░░░░░░░░░░░░░░░░█████████"
-echo "                                    ░░███████░░░░░░░░░░███▒▒▒▒▒▒▒▒███"
-echo "                                    ░░█▒▒▒▒▒▒█░░░░░░░███▒▒▒▒▒▒▒▒▒▒▒▒▒███"
-echo "                                    ░░░█▒▒▒▒▒▒█░░░░██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
-echo "                                    ░░░░█▒▒▒▒▒█░░░██▒▒▒▒▒██▒▒▒▒▒▒██▒▒▒▒▒███"
-echo "                                    ░░░░░█▒▒▒█░░░█▒▒▒▒▒▒████▒▒▒▒████▒▒▒▒▒▒██"
-echo "                                    ░░░█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
-echo "                                    ░░░█▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒██"
-echo "                                    ░██▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒██▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██"
-echo "                                    ██▒▒▒███████████▒▒▒▒▒██▒▒▒▒▒▒▒▒██▒▒▒▒▒██"
-echo "                                    █▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒████████▒▒▒▒▒▒▒██"
-echo "                                    ██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
-echo "                                    ░█▒▒▒███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██"
-echo "                                    ░██▒▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█"
-echo "                                    ░░████████████░░░█████████████████"
+# Add rmarkdown dependency
+# Add pandoc dependency
+# Add sudo apt-get install texlive-latex-base
+#Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'pdf_document')" 
+#Rscript -e "rmarkdown::render('ChIP_seq_analysis_report.Rmd', 'html_document')"
