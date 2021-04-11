@@ -1,8 +1,8 @@
+#! /bin/bash
+
 ## Authors: Francisco J. Romero-Campero
 ##          Ana Belen Romero-Losada
 ## Contact: Francisco J. Romero-Campero - fran@us.es
-
-#! /bin/bash
 
 ## Name input parameters
 DATA=$1
@@ -20,8 +20,12 @@ Q_VALUE=${12}
 FASTQ_LEFT=${13}
 FASTQ_RIGHT=${14}
 NPROC=${15}
+ARCH=${16}
+MICROALGAE=${17}
 
 ACC_NUMBER=${FASTQ_LEFT}
+
+echo "Number of processors: " $NPROC
 
 ## Downloading or copying sample file depending on data source
 cd ${SAMPLE_FOLDER} 
@@ -48,8 +52,7 @@ then
    hisat2 -p $NPROC --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq.gz -2 ${ACC_NUMBER}_2.fastq.gz -S ${ACC_NUMBER}.sam --summary-file mapping_stats
 else
    fastqc ${ACC_NUMBER}_1.fastq.gz
-   # Falta NPROC
-   hisat2 --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq.gz -S ${ACC_NUMBER}.sam --summary-file mapping_stats
+   hisat2 -p $NPROC --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq.gz -S ${ACC_NUMBER}.sam --summary-file mapping_stats
 fi
 
 ## Generting sorted bam file
@@ -70,3 +73,23 @@ echo ${SAMPLE_FOLDER}/${ACC_NUMBER}.gtf >> ../../results/merge_list.txt
 ## Gene Expression Quantification
 stringtie -p $NPROC -e -B -G $ANNOTATION -o ${ACC_NUMBER}.gtf ${ACC_NUMBER}.bam
 rm ${ACC_NUMBER}.bam
+
+## Synchronization
+if [ $ARCH == "SLURM" ]
+then
+   ## Write in blackboard
+   echo "SAMPLE " ${CURRENT_REPLICATE} " DONE" >> ${SAMPLE_FOLDER}/../../logs/blackboard.txt
+
+   ## Count number of line in the blackboard to check the number of processed samples
+   PROCESSED_SAMPLES=$(wc -l ${SAMPLE_FOLDER}/../../logs/blackboard.txt | awk '{print $1}')
+
+   ## Submit scripts for transcriptome merging and differential gene expression 
+   if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
+   then
+      sbatch ${INS}/scripts/transcriptome_merging.sh ${SAMPLE_FOLDER}/../../ ${INS}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+      Rscript ${INS}/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+      Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'pdf_document')" 
+      Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'html_document')" 
+   fi
+fi
+

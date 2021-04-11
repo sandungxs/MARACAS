@@ -9,35 +9,61 @@
 ## Input file name
 PARAMS=$1
 
-echo "                   ^^^^^^^^^^^                           "
-echo "                  &&&.=====.&&&                          "
-echo "                 &&&&  6  6 &&&&                         "
-echo "                &&&&         &&&&                        "
-echo "                &&&&\  \__/ /&&&&                        "
-echo "                     \_____/                             "
-echo " _____________OOOO_____|_|___________________________    "
-echo "/                                                    \   "
-echo "|             WELCOME TO OUR TOOL                    |   "
-echo "| MARACAS (MicroAlgae RnA-seq and Chip-seq AnalysiS) |   "
-echo "|     This is the RNA-seq Data Analysis Pipeline     |   "
-echo "|    Specifically Design to Support the Microalgae   |   "
-echo "|      Resarch Community to Exploit Omics Data       |   "
-echo "|                                                    |   "
-echo "|        Ubuntu means I am because we are            |   "
-echo "|           Nelson Mandela (1918 - 2013)             |   "     
-echo "\_______________________________OOOO_________________/   "
-echo "                   /    |    \                           "
-echo "                   |    |    |                           "
-echo "                   /    |    \                           "
-echo "                  /     |     \                          "
-echo "                  |_____|_____|                          "
-echo "                     /  X  \                             "
-echo "                    (__/ \__)                            "
+echo ""
+echo ""
+echo "                              ^^^^^^^^^^^                           "
+echo "                             &&&.=====.&&&                          "
+echo "                            &&&&  6  6 &&&&                         "
+echo "                           &&&&         &&&&                        "
+echo "                           &&&&\  \__/ /&&&&                        "
+echo "                                \_____/                             "
+echo "            _____________OOOO_____|_|___________________________    "
+echo "           /                                                    \   "
+echo "           |             WELCOME TO OUR TOOL                    |   "
+echo "           | MARACAS (MicroAlgae RnA-seq and Chip-seq AnalysiS) |   "
+echo "           |     This is the RNA-seq Data Analysis Pipeline     |   "
+echo "           |    Specifically Design to Support the Microalgae   |   "
+echo "           |      Resarch Community to Exploit Omics Data       |   "
+echo "           |                                                    |   "
+echo "           |        Ubuntu means I am because we are            |   "
+echo "           |           Nelson Mandela (1918 - 2013)             |   "     
+echo "           \_______________________________OOOO_________________/   "
+echo "                              /    |    \                           "
+echo "                              |    |    |                           "
+echo "                              /    |    \                           "
+echo "                             /     |     \                          "
+echo "                             |_____|_____|                          "
+echo "                                /  X  \                             "
+echo "                               (__/ \__)                            "
 echo ""
 echo ""
 
+sleep 10s
 
-echo "Loading parameters from file " $PARAMS " ... "
+if [ $# -ne 1 ];
+then
+   echo "Error: Wrong number of parameters."
+   echo ""
+   echo ""
+   echo "Usage: rnaseq_pipeline <param_file>"
+   echo ""
+   echo "param_file: A file specifying the parameters for the RNA-seq "
+   echo "            Data Analysis Pipeline. The folder test contains "
+   echo "            several examples such as ?????. Check "
+   echo "            the README file for details on how to write the "
+   echo "            paramater file."
+
+   exit
+fi
+
+
+echo ""
+echo "------------------------------------------------------"
+echo "------------------------------------------------------"
+echo "|| STEP 1: LOADING PARAMETERS FROM FILE " $PARAMS "   "
+echo "------------------------------------------------------"
+echo "------------------------------------------------------" 
+echo ""
 
 ## Load installation directory
 INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
@@ -108,14 +134,19 @@ ARCH=$(grep cluster: $PARAMS | awk '{ print $2}')
 ## Load parameter with the number of processors
 NPROC=$(grep number_processors: $PARAMS | awk '{ print $2}')
 
+echo ""
+echo "---------------------------------------------------"
 echo "The following parameters were loaded."
 echo " - Installation directory: " $INS_DIR
-echo " - Architecture: " $ARCH
-echo " - Number of processors: " $NPROC
 echo " - Working directory: " $WD
 echo " - Main folder: " $MAIN_FOLDER
-echo " - Number of samples: " $NUM_SAMPLES
+echo " - Number of replicates: " $NUM_REPLICATES
+echo " - Sample name: " ${SAMPLE_NAME}
 echo " - Microalgae: " $MICROALGAE
+echo " - Control Input/mock: " ${INCLUDED_CONTROL}
+echo " - Architecture where script will be run: " $ARCH
+echo " - Number of processors: " $NPROC
+
 
 if [ $DATA == "BD" ]
 then
@@ -128,9 +159,20 @@ fi
 echo " - Control condition name: " ${CONTROL_COND}
 echo " - Experimental condition name: " ${EXPERIMENTAL_COND} 
 echo " - Experimental design: " ${EXPERIMENTAL_DESIGN[@]}
-echo " "
+echo "---------------------------------------------------"
+echo ""
 
-echo "Generating working directory."
+
+## Generating working directory.
+
+echo ""
+echo "------------------------------------------------------------"
+echo "------------------------------------------------------------"
+echo "|| STEP 2: GENERATION OF THE WORKING DIRECTORY ESTRUCTURE ||"
+echo "------------------------------------------------------------"
+echo "------------------------------------------------------------"
+echo ""
+
 ## Access working directory
 cd $WD
 
@@ -148,8 +190,6 @@ for i in `seq 1 ${NUM_SAMPLES}`
 do
    mkdir sample_$i
 done
-echo "Working directory generated"
-echo " "
 
 ## Create experimental design file
 cd $WD/${MAIN_FOLDER}/samples
@@ -160,7 +200,87 @@ do
    echo "sample"_$(($i + 1)),${EXPERIMENTAL_DESIGN[$i]} >> experimental_design.csv
 done
 
-if [ $ARCH == "SGE" ]
+echo "Working Directory Structure Generated!"
+echo " "
+if [ $ARCH == "SLURM" ]
+then
+
+   echo ""
+   echo "----------------------------------------------------"
+   echo "----------------------------------------------------"
+   echo "|| STEP 3: PARALLEL SAMPLE PROCESSING USING SLURM ||"
+   echo "----------------------------------------------------"
+   echo "----------------------------------------------------"
+   echo ""
+
+   for  i in `seq 0 $((${NUM_SAMPLES} - 1))`
+   do
+      echo ""
+      echo "*************************"
+      echo "* Processing Sample " $(($i + 1)) 
+      echo "*************************"
+      echo ""
+
+      cd $WD/${MAIN_FOLDER}/samples/sample_$(($i + 1))
+
+      if [ $DATA == "DB" ]
+      then
+         sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                          $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          ${NUM_SAMPLES} \
+                          ${INS_DIR} \
+                          $WD/${MAIN_FOLDER} \
+                          ${CONTROL_COND} \
+                          ${EXPERIMENTAL_COND} \
+                          ${FOLD_CHANGE} \
+                          ${Q_VALUE} \
+                          ${ACC_SAMPLES[$i]} \
+                          $NPROC \
+                          $ARCH \
+                          $MICROALGAE
+         #sleep 10m
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+      then
+         sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                          $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          ${NUM_SAMPLES} \
+                          ${INS_DIR} \
+                          $WD/${MAIN_FOLDER} \
+                          ${CONTROL_COND} \
+                          ${EXPERIMENTAL_COND} \
+                          ${FOLD_CHANGE} \
+                          ${Q_VALUE} \
+                          ${LOC_SAMPLES[$i]} \
+                          NULL \
+                          $NPROC \
+                          $ARCH \
+                          $MICROALGAE
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+      then
+         sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                          $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
+                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          ${NUM_SAMPLES} \
+                          ${INS_DIR} \
+                          $WD/${MAIN_FOLDER} \
+                          ${CONTROL_COND} \
+                          ${EXPERIMENTAL_COND} \
+                          ${FOLD_CHANGE} \
+                          ${Q_VALUE} \
+                          ${LOC_SAMPLES_LEFT[$i]} \
+                          ${LOC_SAMPLES_RIGHT[$i]} \
+                          $NPROC \
+                          $ARCH \
+                          $MICROALGAE
+      fi
+   done
+
+elif [ $ARCH == "SGE" ]
 then
 
    ## Parallel sample processing
@@ -181,7 +301,9 @@ then
                                              ${FOLD_CHANGE} \
                                              ${Q_VALUE} \
                                              ${ACC_SAMPLES[$i]} \
-                                             $NPROC
+                                             $NPROC \
+                                             $ARCH \
+                                             $MICROALGAE
 	    sleep 30m
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
@@ -197,7 +319,9 @@ then
                                              ${FOLD_CHANGE} \
                                              ${Q_VALUE} \
                                              ${LOC_SAMPLES[$i]} \
-                                             $NPROC
+                                             $NPROC \
+                                             $ARCH \
+                                             $MICROALGAE
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
             qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
@@ -213,7 +337,9 @@ then
                                              ${Q_VALUE} \
                                              ${LOC_SAMPLES_LEFT[$i]} \
                                              ${LOC_SAMPLES_RIGHT[$i]} \
-                                             $NPROC
+                                             $NPROC \
+                                             $ARCH \
+                                             $MICROALGAE
 #	    qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${LOC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} $DATA
 	    sleep 30m
          fi
@@ -242,7 +368,9 @@ then
                                              ${FOLD_CHANGE} \
                                              ${Q_VALUE} \
                                              ${ACC_SAMPLES[$i]} \
-                                             $NPROC
+                                             $NPROC \
+                                             $ARCH \
+                                             $MICROALGAE
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
             bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
@@ -257,7 +385,9 @@ then
                                              ${FOLD_CHANGE} \
                                              ${Q_VALUE} \
                                              ${LOC_SAMPLES[$i]} \
-                                             $NPROC
+                                             $NPROC \
+                                             $ARCH \
+                                             $MICROALGAE
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
             bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
@@ -273,7 +403,9 @@ then
                                              ${Q_VALUE} \
                                              ${LOC_SAMPLES_LEFT[$i]} \
                                              ${LOC_SAMPLES_RIGHT[$i]} \
-                                             $NPROC
+                                             $NPROC \
+                                             $ARCH \
+                                             $MICROALGAE
          fi
    done
 

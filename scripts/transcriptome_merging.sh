@@ -1,8 +1,8 @@
+#! /bin/bash
+
 ## Authors: Francisco J. Romero-Campero
 ##          Ana Belen Romero-Losada
 ## Contact: Francisco J. Romero-campero - fran@us.es
-
-#! /bin/bash
 
 EXP_FOLDER=$1
 ANNOTATION=$2
