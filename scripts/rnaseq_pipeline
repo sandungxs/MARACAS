@@ -385,6 +385,7 @@ then
                                              ${FOLD_CHANGE} \
                                              ${Q_VALUE} \
                                              ${LOC_SAMPLES[$i]} \
+                                             NULL \
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
