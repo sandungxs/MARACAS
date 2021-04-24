@@ -281,6 +281,8 @@ points(fold.change[repressed.genes],log10.qval[repressed.genes],cex=0.7,col="blu
 dev.off()
 
 ## Código para desarrollar una función gráfico de barras
+if(length(activated.genes) > 2)
+{
 gene <- activated.genes[2]
 
 original.data <- 2^log.gene.expression - 1
@@ -319,6 +321,7 @@ arrows(xpos, arrow.top, xpos, arrow.bottom,code = 3,angle=90,length=0.1,lwd=1.5)
 points(rep(xpos[1],length(control.expr.vals))+0.1,control.expr.vals)
 points(rep(xpos[2],length(experimental.expr.vals))+0.1,experimental.expr.vals)
 dev.off()
+}
 
 ## Generation of Rmd file for final report
 output.file <- "../results/DE_report.Rmd"
