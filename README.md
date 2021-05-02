@@ -52,6 +52,15 @@ MARACAS requires the following dependencies that need to be previously installed
 To install MARACAS simply download the code from Github and uncompress it, for example to your opt folder. Please, remember the folder where you extract the 
 code and it will be an important parameter to specify in the parameter file when running MARACAS.
 
+´´´
+cd opt
+wget 
+unzip
+
+´´´
+
 ## How to use it?
+
+To run our pipeline MARACAS you first have to create a parameter file 
 
 ## Test Data Sets
