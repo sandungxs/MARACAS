@@ -33,7 +33,14 @@ MARACAS can be executed in a sequential mode in a laptop or server and in a dist
 
 MARACAS requires the following dependencies that need to be previously installed:
 
-* [FASTQC (A quality control tool for high throughput sequence data.)](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+* [FASTQC: A quality control tool for high throughput sequence data](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+* [HISAT2: graph-based alignment of next generation sequencing reads to a population of genomes](http://daehwankimlab.github.io/hisat2/)
+* [Samtools: Reading/writing/editing/indexing/viewing SAM/BAM/CRAM format](http://www.htslib.org/)
+* [deepTools: tools for exploring deep sequencing data](https://deeptools.readthedocs.io/en/develop/index.html)
+* [StringTie: Transcript assembly and quantification for RNA-Seq](https://ccb.jhu.edu/software/stringtie/)
+* [R: free software environment for statistical computing and graphics with the following packages:](https://www.r-project.org/)
+    * laslf
+    * lasdjf
 
 
 
