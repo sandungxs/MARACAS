@@ -49,18 +49,40 @@ MARACAS requires the following dependencies that need to be previously installed
 * [TeX Live: TeX document production system](https://www.tug.org/texlive/)
 
 
-To install MARACAS simply download the code from Github and uncompress it, for example to your opt folder. Please, remember the folder where you extract the 
-code and it will be an important parameter to specify in the parameter file when running MARACAS.
+To install MARACAS follow the following steps:
 
-´´´
+1. Download the code from Github and uncompress it, for example, to your opt folder:
+
+```
 cd opt
-wget 
-unzip
+wget link
+unzip master
+```
 
-´´´
+2. Add to your PATH variable defined in your .bashrc the path to the scripts folder so the MARACAS scripts can be executed from the command line: 
+
+```
+cd
+echo "PATH=$PATH:$HOME/opt/MARACAS/scripts" >> .bashrc
+source .bashrc
+
+```
+
+3. Add to your .bashrc a new variable MARACAS indicating the path to the MARACAS scripts:  
+
+```
+echo "export MARACAS=$HOME/opt/MARACAS/scripts" >> .bashrc
+source .bashrc
+```
 
 ## How to use it?
 
-To run our pipeline MARACAS you first have to create a parameter file 
+To run our pipeline MARACAS you first have to create a parameter file. This parameter file is different depending if you want to analyze RNA-seq or ChIP-seq data. You can find examples of these files in the *test* folder. In the *test* folder you can also find a template for each type of parameter file. 
+
+### Run MARACAS and Parameter file for RNA-seq data Analysis
+
+To analyze RNA-seq data first access the folder 
+
+### Run MARACAS and Parameter file for ChIP-seq data Analysis 
 
 ## Test Data Sets
