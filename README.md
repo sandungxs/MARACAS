@@ -39,11 +39,13 @@ MARACAS requires the following dependencies that need to be previously installed
 * [Samtools: Reading/writing/editing/indexing/viewing SAM/BAM/CRAM format](http://www.htslib.org/)
 * [deepTools: tools for exploring deep sequencing data](https://deeptools.readthedocs.io/en/develop/index.html)
 * [StringTie: Transcript assembly and quantification for RNA-Seq](https://ccb.jhu.edu/software/stringtie/)
+* [MACS2: Model-based Analysis for ChIP-Seq](https://pypi.org/project/MACS2/)
 * [R: free software environment for statistical computing and graphics with the following packages:](https://www.r-project.org/)
     * [ballgown: Tools for statistical analysis of assembled transcriptomes, including flexible differential expression analysis, visualization of transcript structures, and matching of assembled transcripts to annotation.](https://www.bioconductor.org/packages/release/bioc/html/ballgown.html)
     * [FactoMineR: an R package dedicated to multivariate Exploratory Data Analysis.](http://factominer.free.fr/)
     * [factoextra: an R package making easy to extract and visualize the output of exploratory multivariate data analyses](https://cran.r-project.org/web/packages/factoextra/index.html)
     * [limma: Linear Models for Microarray and RNA-seq Data](https://bioconductor.org/packages/release/bioc/html/limma.html)
+    * [rmarkdown: Dynamic Documents for R, Convert R Markdown documents into a variety of formats.](https://cran.r-project.org/web/packages/rmarkdown/index.html)
 * [TeX Live: TeX document production system](https://www.tug.org/texlive/)
 
 
