@@ -33,7 +33,7 @@ MARACAS can be executed in a sequential mode in a laptop or server and in a dist
 
 MARACAS requires the following dependencies that need to be previously installed:
 
-* [FASTQC (A quality control tool for high throughput sequence data.)](A quality control tool for high throughput sequence data.)
+* [FASTQC (A quality control tool for high throughput sequence data.)](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 
 
