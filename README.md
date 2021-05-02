@@ -49,7 +49,8 @@ MARACAS requires the following dependencies that need to be previously installed
 * [TeX Live: TeX document production system](https://www.tug.org/texlive/)
 
 
-To install MARACAS 
+To install MARACAS simply download the code from Github and uncompress it, for example to your opt folder. Please, remember the folder where you extract the 
+code and it will be an important parameter to specify in the parameter file when running MARACAS.
 
 ## How to use it?
 
