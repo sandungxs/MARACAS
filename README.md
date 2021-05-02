@@ -2,7 +2,7 @@
 
 ## What is MARACAS?
 
-MARACAS is a computational pipeline specifically designed for the analysis of RNA-seq and ChIP-seq
+MARACAS is an automatic computational pipeline specifically designed for the analysis of RNA-seq and ChIP-seq
 data for **microalgae**. MARACAS starts processing raw fastq files and it generates lists of differentially 
 expressed genes for RNA-seq data and lists of genomic loci in bed format for ChIP-seq data. The analysis
 are performed according to user specified parameters. Reports in html and pdf format are produced for easy
@@ -13,7 +13,19 @@ functional analysis.
 
 MARACAS supports a wide range of microalge including:
 
-
+* Ostreococcus tauri
+* Chlamydomonas reinhardtii
+* Haematococcus lacustris
+* Dunaliella salina
+* Volvox Carteri
+* Phaeodactylum tricornutum
+* Nannochloropsis gaditana
+* Ostreococcus lucimarinus
+* Coccomyxa subellipsoidea
+* Bathycoccus prasinos
+* Klebsormidium nitens
+* Chlomochloris zofingiensis
+* Micromonas pusilla CCMP1545
 
 MARACAS can be executed in a sequential mode in a laptop or server and in a distributed/parallel mode in a computer cluster.
 
