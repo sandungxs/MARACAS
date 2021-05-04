@@ -66,7 +66,7 @@ echo "------------------------------------------------------"
 echo ""
 
 ## Load installation directory
-INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
+##INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
 
 ## Load working directory
 WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
@@ -137,7 +137,7 @@ NPROC=$(grep number_processors: $PARAMS | awk '{ print $2}')
 echo ""
 echo "---------------------------------------------------"
 echo "The following parameters were loaded."
-echo " - Installation directory: " $INS_DIR
+##echo " - Installation directory: " $INS_DIR
 echo " - Working directory: " $WD
 echo " - Main folder: " $MAIN_FOLDER
 echo " - Microalgae: " $MICROALGAE
@@ -229,12 +229,11 @@ then
 
       if [ $DATA == "DB" ]
       then
-         sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+         sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
-                          ${INS_DIR} \
                           $WD/${MAIN_FOLDER} \
                           ${CONTROL_COND} \
                           ${EXPERIMENTAL_COND} \
@@ -247,12 +246,11 @@ then
          #sleep 10m
       elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
       then
-         sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+         sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          $MARACASdata/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
-                          ${INS_DIR} \
                           $WD/${MAIN_FOLDER} \
                           ${CONTROL_COND} \
                           ${EXPERIMENTAL_COND} \
@@ -265,12 +263,11 @@ then
                           $MICROALGAE
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
-         sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+         sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                          ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                          ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
-                          ${INS_DIR} \
                           $WD/${MAIN_FOLDER} \
                           ${CONTROL_COND} \
                           ${EXPERIMENTAL_COND} \
@@ -293,12 +290,11 @@ then
       do
          if [ $DATA == "DB" ]
          then
-            qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sge $DATA $PAIRED \
+            qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sge $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                             ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
-                                             ${INS_DIR} \
                                              $WD/${MAIN_FOLDER} \
                                              ${CONTROL_COND} \
                                              ${EXPERIMENTAL_COND} \
@@ -311,12 +307,11 @@ then
 	    sleep 30m
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
-            qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sge $DATA $PAIRED \
+            qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sge $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                             ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
-                                             ${INS_DIR} \
                                              $WD/${MAIN_FOLDER} \
                                              ${CONTROL_COND} \
                                              ${EXPERIMENTAL_COND} \
@@ -328,12 +323,11 @@ then
                                              $MICROALGAE
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
-            qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+            qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                             ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
-                                             ${INS_DIR} \
                                              $WD/${MAIN_FOLDER} \
                                              ${CONTROL_COND} \
                                              ${EXPERIMENTAL_COND} \
@@ -344,7 +338,6 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
-#	    qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${LOC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} $DATA
 	    sleep 30m
          fi
 
@@ -360,12 +353,11 @@ then
       do
          if [ $DATA == "DB" ]
          then
-            bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+            bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                             ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
-                                             ${INS_DIR} \
                                              $WD/${MAIN_FOLDER} \
                                              ${CONTROL_COND} \
                                              ${EXPERIMENTAL_COND} \
@@ -377,12 +369,11 @@ then
                                              $MICROALGAE
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
-            bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+            bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                             ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
-                                             ${INS_DIR} \
                                              $WD/${MAIN_FOLDER} \
                                              ${CONTROL_COND} \
                                              ${EXPERIMENTAL_COND} \
@@ -395,12 +386,11 @@ then
                                              $MICROALGAE
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
-            bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+            bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                             ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
-                                             ${INS_DIR} \
                                              $WD/${MAIN_FOLDER} \
                                              ${CONTROL_COND} \
                                              ${EXPERIMENTAL_COND} \
@@ -414,8 +404,8 @@ then
          fi
    done
 
-   bash ${INS_DIR}/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
-   Rscript ${INS_DIR}/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+   bash $MARACAS/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+   Rscript $MARACAS/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE $MICROALGAE
    Rscript -e "rmarkdown::render('$WD/${MAIN_FOLDER}/results/DE_report.Rmd', 'pdf_document')" 
    Rscript -e "rmarkdown::render('$WD/${MAIN_FOLDER}/results/DE_report.Rmd', 'html_document')" 	
 fi

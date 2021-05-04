@@ -11,19 +11,18 @@ WD=$3
 MAIN_FOLDER=$4
 INDEX=$5
 NUM_REPLICATES=$6
-INS=$7
-CONTROL=$8
-CHIP_LEFT=$9
-CHIP_RIGHT=${10}
-CONTROL_LEFT=${11}
-CONTROL_RIGHT=${12}
-CURRENT_REPLICATE=${13}
-MODE=${14}
-NPROC=${15}
-ARCH=${16}
-MICROALGAE=${17}
-HISTONE=${18}
-TF=${19}
+CONTROL=$7
+CHIP_LEFT=$8
+CHIP_RIGHT=$9
+CONTROL_LEFT=${10}
+CONTROL_RIGHT=${11}
+CURRENT_REPLICATE=${12}
+MODE=${13}
+NPROC=${14}
+ARCH=${15}
+MICROALGAE=${16}
+HISTONE=${17}
+TF=${18}
 
 REPLICATE_FOLDER=$WD/${MAIN_FOLDER}/replicates/replicate_${CURRENT_REPLICATE}
 
@@ -32,7 +31,6 @@ echo "PAIRED" $PAIRED
 ##echo "replicate folder" ${REPLICATE_FOLDER}
 ##echo "index" $INDEX
 ##echo "number replicates" ${NUM_REPLICATES}
-##echo "instalation" $INS
 ##echo "control" $CONTROL
 ##echo "chip left" ${CHIP_LEFT}
 ##echo "chip right" ${CHIP_RIGHT}
@@ -303,13 +301,13 @@ then
    then
       if [ $MODE == "histone_modification" ]
       then
-         sbatch $INS/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
-                                                          $MODE ${INS} $MICROALGAE $HISTONE $HISTONE \
+         sbatch $MARACAS/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
+                                                          $MODE $MICROALGAE $HISTONE $HISTONE \
                                                           $CONTROL $NPROC
       elif [ $MODE == "transcription_factor" ]
       then
-         sbatch $INS/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
-                                                          $MODE ${INS} $MICROALGAE $TF $TF \
+         sbatch $MARACAS/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
+                                                          $MODE $MICROALGAE $TF $TF \
                                                           $CONTROL $NPROC
       fi
    fi

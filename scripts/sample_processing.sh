@@ -11,17 +11,16 @@ SAMPLE_FOLDER=$3
 INDEX=$4
 ANNOTATION=$5
 NUM_SAMPLES=$6
-INS=$7
-EXP_FOLDER=$8
-CONTROL=$9
-EXPERIMENTAL=${10}
-FOLD_CHANGE=${11}
-Q_VALUE=${12}
-FASTQ_LEFT=${13}
-FASTQ_RIGHT=${14}
-NPROC=${15}
-ARCH=${16}
-MICROALGAE=${17}
+EXP_FOLDER=$7
+CONTROL=$8
+EXPERIMENTAL=$9
+FOLD_CHANGE=${10}
+Q_VALUE=${11}
+FASTQ_LEFT=${12}
+FASTQ_RIGHT=${13}
+NPROC=${14}
+ARCH=${15}
+MICROALGAE=${16}
 
 ACC_NUMBER=${FASTQ_LEFT}
 
@@ -86,8 +85,8 @@ then
    ## Submit scripts for transcriptome merging and differential gene expression 
    if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
    then
-      sbatch ${INS}/scripts/transcriptome_merging.sh ${SAMPLE_FOLDER}/../../ ${INS}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
-      Rscript ${INS}/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+      sbatch $MARACAS/scripts/transcriptome_merging.sh ${SAMPLE_FOLDER}/../../ $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE
       Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'pdf_document')" 
       Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'html_document')" 
    fi

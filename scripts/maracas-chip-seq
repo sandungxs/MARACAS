@@ -64,7 +64,7 @@ echo "------------------------------------------------------"
 echo ""
 
 ## Load installation directory
-INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
+##INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
 
 ## Load data source
 DATA=$(grep data_source: $PARAMS | awk '{print $2}')
@@ -180,7 +180,7 @@ fi
 echo ""
 echo "---------------------------------------------------"
 echo "The following parameters were loaded."
-echo " - Installation directory: " $INS_DIR
+##echo " - Installation directory: " $INS_DIR
 echo " - Working directory: " $WD
 echo " - Main folder: " $MAIN_FOLDER
 echo " - Number of replicates: " $NUM_REPLICATES
@@ -267,11 +267,10 @@ then
 
       if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
       then
-         sbatch ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+         sbatch $MARACAS/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
-                                         ${INS_DIR} \
                                          ${INCLUDED_CONTROL} \
                                          ${CHIP_SAMPLES[$i]} \
                                          NULL \
@@ -286,11 +285,10 @@ then
                                          $TF
      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
      then
-         sbatch ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+         sbatch $MARACAS/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
-                                         ${INS_DIR} \
                                          ${INCLUDED_CONTROL} \
                                          ${LOC_CHIP_SAMPLES[$i]} \
                                          NULL \
@@ -305,12 +303,11 @@ then
                                          $TF
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
-          sbatch ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+          sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                          ${NUM_SAMPLES} \
-                                         ${INS_DIR} \
                                          $WD/${MAIN_FOLDER} \
                                          ${CONTROL_COND} \
                                          ${EXPERIMENTAL_COND} \
@@ -348,11 +345,10 @@ then
       then
          if [ $PAIRED == "FALSE" ]
          then
-         qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+         qsub -o $WD/${MAIN_FOLDER}/logs/${CHIP_SAMPLES[$i]} $MARACAS/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
-                                         ${INS_DIR} \
                                          ${INCLUDED_CONTROL} \
                                          ${CHIP_SAMPLES[$i]} \
                                          NULL \
@@ -363,12 +359,11 @@ then
          fi
       elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
       then
-         qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+         qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                          ${NUM_SAMPLES} \
-                                         ${INS_DIR} \
                                          $WD/${MAIN_FOLDER} \
                                          ${CONTROL_COND} \
                                          ${EXPERIMENTAL_COND} \
@@ -377,12 +372,11 @@ then
                                          ${LOC_SAMPLES[$i]}
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
-                qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+                qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                                 $WD ${MAIN_FOLDER} \
-                                                ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                                ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                                $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                                $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                                 ${NUM_SAMPLES} \
-                                                ${INS_DIR} \
                                                 $WD/${MAIN_FOLDER} \
                                                 ${CONTROL_COND} \
                                                 ${EXPERIMENTAL_COND} \
@@ -390,7 +384,6 @@ then
                                                 ${Q_VALUE} \
                                                 ${LOC_SAMPLES_LEFT[$i]} \
                                                 ${LOC_SAMPLES_RIGHT[$i]}
-#          qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) ${LOC_SAMPLES[$i]} ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf ${NUM_SAMPLES} ${INS_DIR} $WD/${MAIN_FOLDER} ${CONTROL_COND} ${EXPERIMENTAL_COND} ${FOLD_CHANGE} ${Q_VALUE} $DATA
       fi
 
       echo "- Replicate " $(($i + 1)) " processing submitted to queue"
@@ -418,11 +411,10 @@ then
 
       if [ $DATA == "DB" ] && [ ${INCLUDED_CONTROL} == "yes" ]
       then
-         bash ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+         bash $MARACAS/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
-                                         ${INS_DIR} \
                                          ${INCLUDED_CONTROL} \
                                          ${CHIP_SAMPLES[$i]} \
                                          NULL \
@@ -434,11 +426,10 @@ then
                                          $ARCH
      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
      then
-         bash ${INS_DIR}/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
+         bash $MARACAS/scripts/chipseq_replicate_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/genome/bowtie2_index_${MICROALGAE} \
                                          ${NUM_REPLICATES} \
-                                         ${INS_DIR} \
                                          ${INCLUDED_CONTROL} \
                                          ${LOC_CHIP_SAMPLES[$i]} \
                                          NULL \
@@ -450,12 +441,11 @@ then
                                          $ARCH
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
-          bash ${INS_DIR}/scripts/sample_processing.sh $DATA $PAIRED \
+          bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                          $WD ${MAIN_FOLDER} \
-                                         ${INS_DIR}/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                                         ${INS_DIR}/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                                         $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                         $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                          ${NUM_SAMPLES} \
-                                         ${INS_DIR} \
                                          $WD/${MAIN_FOLDER} \
                                          ${CONTROL_COND} \
                                          ${EXPERIMENTAL_COND} \
@@ -487,7 +477,7 @@ echo "WD=" $WD
 echo "MAIN_FOLDER=" ${MAIN_FOLDER}
 echo "NUM_REPLICATES=" ${NUM_REPLICATES}
 echo "MODE=" $MODE
-echo "INS_DIR=" ${INS_DIR}
+##echo "INS_DIR=" ${INS_DIR}
 echo "MICRO=" $MICROALGAE
 echo "HISTONE=" $HISTONE
 echo "TF=" $TF
@@ -499,13 +489,13 @@ echo "----------------------"
 
    if [ $MODE == "histone_modification" ]
    then
-      bash ${INS_DIR}/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
-                                                       $MODE ${INS_DIR} $MICROALGAE $HISTONE $HISTONE \
+      bash $MARACAS/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
+                                                       $MODE $MICROALGAE $HISTONE $HISTONE \
                                                        ${INCLUDED_CONTROL} $NPROC
    elif [ $MODE == "transcription_factor" ]
    then
-      bash ${INS_DIR}/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
-                                                       $MODE ${INS_DIR} $MICROALGAE $TF $TF \
+      bash $MARACAS/scripts/chipseq_final_processing.sh $WD ${MAIN_FOLDER} ${NUM_REPLICATES} \
+                                                       $MODE $MICROALGAE $TF $TF \
                                                        ${INCLUDED_CONTROL} $NPROC
    fi
 fi

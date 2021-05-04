@@ -4,19 +4,17 @@ WD=$1
 MAIN_FOLDER=$2
 NUM_REPLICATES=$3
 MODE=$4
-INS_DIR=$5
-MICROALGAE=$6 
-HISTONE=$7 
-TF=$8
-INCLUDED_CONTROL=$9
-NPROC=${10}
+MICROALGAE=$5 
+HISTONE=$6 
+TF=$7
+INCLUDED_CONTROL=$8
+NPROC=$9
 
 echo "------------------------"
 echo "WD=" $WD
 echo "MAIN_FOLDER=" ${MAIN_FOLDER}
 echo "NUM_REPLICATES=" ${NUM_REPLICATES}
 echo "MODE=" $MODE
-echo "INS_DIR=" ${INS_DIR}
 echo "MICRO=" $MICROALGAE
 echo "HISTONE=" $HISTONE
 echo "TF=" $TF
@@ -72,10 +70,10 @@ fi
 
 if [ $MODE == "histone_modification" ]
 then
-   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $HISTONE ${NUM_REPLICATES} ${INCLUDED_CONTROL}
+   Rscript $MARACAS/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $HISTONE ${NUM_REPLICATES} ${INCLUDED_CONTROL}
 elif [ $MODE == "transcription_factor" ]
 then
-   Rscript ${INS_DIR}/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $TF ${NUM_REPLICATES} ${INCLUDED_CONTROL}
+   Rscript $MARACAS/scripts/create_Rmd.R $WD/${MAIN_FOLDER}/results/ChIP_seq_analysis_report.Rmd $MICROALGAE $MODE $TF ${NUM_REPLICATES} ${INCLUDED_CONTROL}
 fi
 
 # Add rmarkdown dependency
