@@ -133,8 +133,8 @@ then
    LOC_CHIP_SAMPLES_RIGHT=()
    for i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
-      LOC_CHIP_SAMPLES_LEFT[$i]=$(grep loc_chip_replicate_left$(($i +1)): $PARAMS | awk '{ print $2 }')
-      LOC_CHIP_SAMPLES_RIGHT[$i]=$(grep loc_chip_replicate_right$(($i +1)): $PARAMS | awk '{ print $2 }')
+      LOC_CHIP_SAMPLES_LEFT[$i]=$(grep loc_chip_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      LOC_CHIP_SAMPLES_RIGHT[$i]=$(grep loc_chip_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
       ACC_SAMPLES[$i]=sample$(($i+1))
    done
 
