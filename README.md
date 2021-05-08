@@ -90,7 +90,7 @@ maracas-rna-seq <parameter-file-rna-seq>
 Click here for an example of the parameter file used for RNA-seq analysis. 
 Click here for a template of the parameter file used for RNA-seq analysis. 
 
-Next the parameters to be specified in the parameter file for RNA-seq analysis is listed:
+Next the parameters to be specified in the parameter file for RNA-seq analysis are listed:
 
 * **data_source:** This parameter specifies the source of the data to be analysed. It can take the value **FILES** when the fastq files are already located in a folder in the computer where MARACAS is installed or the value **DB** when the data has been freely deposited in the GEO data base.
 
@@ -122,22 +122,63 @@ RNA-seq data was generated. It can take one the following exact names:
     * volvox_carteri
 
 * **main_folder:** This parameter specifies the name of the folder where the 
-output local_test
-number_of_samples: 4
-control_condition_name: iron
-experimental_condition_name: no_iron
-loc_sample1: /home/fran/research/MARACAS/test/sample_1.fastq.gz
-condition_sample1: iron
-loc_sample2: /home/fran/research/MARACAS/test/sample_2.fastq.gz
-condition_sample2: iron
-loc_sample3: /home/fran/research/MARACAS/test/sample_3.fastq.gz
-condition_sample3: no_iron
-loc_sample4: /home/fran/research/MARACAS/test/sample_4.fastq.gz
-condition_sample4: no_iron
-fold_change: 2
-q_value: 0.5
+final and intermediary results of the analysis will be saved. 
+
+* **number_of_samples:** This parameter specifies the total number of samples to be analyzed. 
+
+* **control_condition_name:** This parameter specifies the name of the control condition.
+
+* **experimental_condition_name:** This parameter specifies the name of the experimental condition.
+
+* **loc_sampleN:** In the case of single end data (*paired_end: FALSE*) and when the data to be processed are stored in your computer in fastq format (*data_source: FILES*) this parameter specifies the path and file name of sampleN where N=1,...,number_of_samples.
+
+* **acc_sampleN:** In the case when the data to be processed needs to be retrieve from the GEO database (*data_source: DB*) this parameter specifies accession number identifying the fastq file in GEO.
+
+* **loc_sample_leftN:** In the case of paired end data (*paired_end: TRUE*) and when the data to be processed are stored in your computer in fastq format (*data_source: FILES*) this parameter specifies the path and name of the fastq file containing the left reads for sampleN where N=1,...,number_of_samples.
+
+* **loc_sample_rightN:** In the case of paired end data (*paired_end: TRUE*) and when the data to be processed are stored in your computer in fastq format (*data_source: FILES*) this parameter specifies the path and name of the fastq file containing the right reads for sampleN where N=1,...,number_of_samples.
+
+* **condition_sample1:** This parameter specifies for each sampleN where N=1,...,number_of_samples the condition name to which it corresponds. The condition name has to be one of the names specified in the previous parameters *control_condition_name* or *experimental_condition_name*. 
+
+* **fold_change:** This parameter specifies the fold-change used to determine differential expressed genes in the experimental condition when compared to the control condition. 
+
+* **q_value:** This parameter specifies the q-value, adjusted p-value or FDR used to determine differential expressed genes in the experimental condition when compared to the control condition. 
 
 
 ### Run MARACAS and Parameter file for ChIP-seq data Analysis 
+
+To process ChIP-seq data use the executable **maracas-chip-seq** with a single input consisting in the parameter file:
+
+```
+maracas-chip-seq <parameter-file-rna-seq>
+```
+
+Click here for an example of the parameter file used for ChIP-seq analysis. 
+Click here for a template of the parameter file used for ChIP-seq analysis. 
+
+The parameters **data_source:**, **cluster:**, **number_processors:**, **working_directory:**, **microalgae:**, **main_folder:**, **number_of_replicates:** and **paired_end:** are the same as for the case of an RNA-seq analysis. You can find their description in the previous section.
+
+Next the specific parameters for a ChIP-seq analysis are listed:
+
+* **included_control:** This parameter can take the values *yes* or *no* depending whether or not your experimental design includes a control condition such as an input, mock or similar. 
+
+* **mode:** This parameter can take the values *transcription_factor* or *histone_modification* to specify if your ChIP-seq data was generated for a transcription factor or a histone modification. 
+
+* **transcription_factor:** When *mode: transcription_factor* this parameter specifies the name of the corresponding transcription factor.
+
+* **histone_modification:** When *mode: histone_modification* this parameter specifies the name of the corresponding histone modification.
+
+* **chip_replicate_N:** When *data_source: DB* this parameter specifies the accession number in GEO corresponding to replicate N of the ChIP sample.   
+
+* **control_replicate_N:** When *data_source: DB* and *included_control: yes* this parameter specifies the accession number in GEO corresponding to replicate N of the control sample.
+
+* **loc_chip_replicate_N:** When *data_source: FILES* and *paired_end: FALSE* this parameter specifies the path including the fastq file name corresponding to replicate N of the ChIP sample.  
+
+* **loc_control_replicate_N:** When *data_source: FILES*, *included_control: yes* and *paired_end: FALSE* this parameter specifies the path including the file name corresponding to replicate N of the control sample.
+
+* **loc_chip_replicate_left_N:**, **loc_chip_replicate_right_N:**, **loc_control_replicate_left_N:** and **loc_control_replicate_right_N:** These parameters specify the path including the fastq file names corresponding to the chip and control samples when *data_source: FILES*, *included_control: yes* and *paired_end: TRUE*.    
+
+### Results generated by MARACAS 
+
 
 ## Test Data Sets
