@@ -70,7 +70,7 @@ echo ""
 DATA=$(grep data_source: $PARAMS | awk '{print $2}')
 
 ## Load working directory
-WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
+eval WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
 
 ## Load main folder
 MAIN_FOLDER=$(grep main_folder: $PARAMS | awk '{ print $2 }')
@@ -114,7 +114,7 @@ then
    LOC_CHIP_SAMPLES=()
    for i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
-      LOC_CHIP_SAMPLES[$i]=$(grep loc_chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      eval LOC_CHIP_SAMPLES[$i]=$(grep loc_chip_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
       ACC_SAMPLES[$i]=sample$(($i+1))
    done
    
@@ -123,7 +123,7 @@ then
       LOC_CONTROL_SAMPLES=()
       for i in `seq 0 $((${NUM_REPLICATES} - 1))`
       do
-         LOC_CONTROL_SAMPLES[$i]=$(grep loc_control_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
+         eval LOC_CONTROL_SAMPLES[$i]=$(grep loc_control_replicate_$(($i +1)): $PARAMS | awk '{ print $2 }')
       done
    fi
 
@@ -133,8 +133,8 @@ then
    LOC_CHIP_SAMPLES_RIGHT=()
    for i in `seq 0 $((${NUM_REPLICATES} - 1))`
    do
-      LOC_CHIP_SAMPLES_LEFT[$i]=$(grep loc_chip_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
-      LOC_CHIP_SAMPLES_RIGHT[$i]=$(grep loc_chip_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      eval LOC_CHIP_SAMPLES_LEFT[$i]=$(grep loc_chip_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
+      eval LOC_CHIP_SAMPLES_RIGHT[$i]=$(grep loc_chip_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
       ACC_SAMPLES[$i]=sample$(($i+1))
    done
 
@@ -144,8 +144,8 @@ then
       LOC_CONTROL_SAMPLES_RIGHT=()
       for i in `seq 0 $((${NUM_REPLICATES} - 1))`
       do
-         LOC_CONTROL_SAMPLES_LEFT[$i]=$(grep loc_control_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
-         LOC_CONTROL_SAMPLES_RIGHT[$i]=$(grep loc_control_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
+         eval LOC_CONTROL_SAMPLES_LEFT[$i]=$(grep loc_control_replicate_left_$(($i +1)): $PARAMS | awk '{ print $2 }')
+         eval LOC_CONTROL_SAMPLES_RIGHT[$i]=$(grep loc_control_replicate_right_$(($i +1)): $PARAMS | awk '{ print $2 }')
       done
    fi
 

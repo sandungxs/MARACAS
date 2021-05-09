@@ -26,7 +26,7 @@ echo "           |    Specifically Design to Support the Microalgae   |   "
 echo "           |      Resarch Community to Exploit Omics Data       |   "
 echo "           |                                                    |   "
 echo "           |        Ubuntu means I am because we are            |   "
-echo "           |           Nelson Mandela (1918 - 2013)             |   "     
+echo "           |           Nelson Mandela (1918 - 2013)             |   "
 echo "           \_______________________________OOOO_________________/   "
 echo "                              /    |    \                           "
 echo "                              |    |    |                           "
@@ -69,7 +69,7 @@ echo ""
 ##INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
 
 ## Load working directory
-WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
+eval WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
 
 ## Load main folder
 MAIN_FOLDER=$(grep main_folder: $PARAMS | awk '{ print $2 }')
@@ -99,7 +99,7 @@ then
 	LOC_SAMPLES=()
 	for i in `seq 0 $((${NUM_SAMPLES} - 1))`
 	do   
-   	LOC_SAMPLES[$i]=$(grep loc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
+   	eval LOC_SAMPLES[$i]=$(grep loc_sample$(($i +1)): $PARAMS | awk '{ print $2 }')
 		ACC_SAMPLES[$i]=sample$(($i+1))
 	done
 elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
@@ -347,10 +347,25 @@ then
 elif [ $ARCH == "SERVER" ]
 then
 
-   ## Sequential sample processing
-   echo "Sequential sample processing"
+   ## Sequential sample processing   
+   echo ""
+   echo "------------------------------------------"
+   echo "------------------------------------------"
+   echo "|| STEP 3: SEQUENTIAL SAMPLE PROCESSING ||"
+   echo "------------------------------------------"
+   echo "------------------------------------------"
+   echo ""
+   
+   
    for  i in `seq 0 $((${NUM_SAMPLES} - 1))`
       do
+      
+         echo ""
+         echo "*************************"
+         echo "* PROCESSING SAMPLE " $(($i + 1)) 
+         echo "*************************"
+         echo ""
+      
          if [ $DATA == "DB" ]
          then
             bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
@@ -405,7 +420,19 @@ then
    done
 
    bash $MARACAS/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+   
+   echo ""
+   echo "* Computing differential gene expression *" 
+   echo "******************************************"
+   echo ""
+   
    Rscript $MARACAS/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+   
+   echo ""
+   echo "* Generating output reports *" 
+   echo "*****************************"
+   echo ""
+   
    Rscript -e "rmarkdown::render('$WD/${MAIN_FOLDER}/results/DE_report.Rmd', 'pdf_document')" 
    Rscript -e "rmarkdown::render('$WD/${MAIN_FOLDER}/results/DE_report.Rmd', 'html_document')" 	
 fi

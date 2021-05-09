@@ -24,9 +24,13 @@ MICROALGAE=${16}
 
 ACC_NUMBER=${FASTQ_LEFT}
 
-echo "Number of processors: " $NPROC
-
 ## Downloading or copying sample file depending on data source
+
+echo ""
+echo "* Downloading or copying files *" 
+echo "*******************************"
+echo ""
+
 cd ${SAMPLE_FOLDER} 
 if [ $DATA == "DB" ]
 then
@@ -43,27 +47,60 @@ then
 fi
 
 ## Sample quality control and read mapping to reference genome
+
 if [ -f ${ACC_NUMBER}_2.fastq.gz ]
 then
+
+   echo ""
+   echo "* Quality Analysis *" 
+   echo "********************"
+   echo ""
+   
    fastqc ${ACC_NUMBER}_1.fastq.gz
    fastqc ${ACC_NUMBER}_2.fastq.gz
 
+   echo ""
+   echo "*    Read Mapping  *" 
+   echo "********************"
+   echo ""
+
    hisat2 -p $NPROC --dta -x $INDEX -1 ${ACC_NUMBER}_1.fastq.gz -2 ${ACC_NUMBER}_2.fastq.gz -S ${ACC_NUMBER}.sam --summary-file mapping_stats
 else
+
+   echo ""
+   echo "* Quality Analysis *" 
+   echo "********************"
+   echo ""
+
    fastqc ${ACC_NUMBER}_1.fastq.gz
+   
+   echo ""
+   echo "* Read Mapping     *" 
+   echo "********************"
+   echo ""
+   
    hisat2 -p $NPROC --dta -x $INDEX -U ${ACC_NUMBER}_1.fastq.gz -S ${ACC_NUMBER}.sam --summary-file mapping_stats
 fi
 
+echo ""
+echo "* Generating mapping signal in bigwig format *" 
+echo "**********************************************"
+echo ""
+
 ## Generting sorted bam file
 samtools sort -@ $NPROC -m 2G -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
-rm ${ACC_NUMBER}.sam
-rm *.fastq.gz
-rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
+#rm ${ACC_NUMBER}.sam
+#rm *.fastq.gz
+#rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
 samtools index -@ $NPROC ${ACC_NUMBER}.bam
 bamCoverage -p $NPROC -bs 10 --normalizeUsing CPM --bam ${ACC_NUMBER}.bam -o ${ACC_NUMBER}.bw
 
-
 ## Transcript assembly
+echo ""
+echo "* Transcript assembly and gene expression estimation *" 
+echo "******************************************************"
+echo ""
+
 stringtie -p $NRPOC -G $ANNOTATION -o ${ACC_NUMBER}.gtf -l ${ACC_NUMBER} ${ACC_NUMBER}.bam
 
 ## Preparing merge list file for transcriptome merging
@@ -85,8 +122,20 @@ then
    ## Submit scripts for transcriptome merging and differential gene expression 
    if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
    then
+      
       sbatch $MARACAS/scripts/transcriptome_merging.sh ${SAMPLE_FOLDER}/../../ $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+      
+      echo ""
+      echo "* Computing differential gene expression *" 
+      echo "******************************************"
+      echo ""
       Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+      
+      echo ""
+      echo "* Generating output reports *" 
+      echo "*****************************"
+      echo ""
+
       Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'pdf_document')" 
       Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'html_document')" 
    fi
