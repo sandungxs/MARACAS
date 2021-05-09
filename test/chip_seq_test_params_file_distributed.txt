@@ -1,5 +1,5 @@
 data_source: FILES
-cluster: SERVER
+cluster: SLURM
 number_processors: 2
 working_directory: $HOME/tmp
 microalgae: chip_test

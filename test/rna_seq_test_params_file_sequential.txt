@@ -2,7 +2,7 @@ data_source: FILES
 cluster: SERVER
 number_processors: 2
 paired_end: FALSE
-working_directory: $HOME
+working_directory: $HOME/tmp
 microalgae: test
 main_folder: rna_seq_test
 number_of_samples: 4
