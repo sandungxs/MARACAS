@@ -2,14 +2,13 @@
 
 ## What is MARACAS?
 
-MARACAS is an automatic computational pipeline specifically designed for the analysis of RNA-seq and ChIP-seq
-data for **microalgae**. MARACAS starts processing raw fastq files and it generates lists of differentially 
-expressed genes for RNA-seq data and lists of genomic loci in bed format for ChIP-seq data. BigWig files with the 
-normalized mapping signal are also generated. The analysis are performed according to user specified parameters. 
+MARACAS is an automatic computational pipeline specifically designed for the analysis of **microalgae** RNA-seq and ChIP-seq
+data. MARACAS starts processing raw fastq files and generates lists of differentially 
+expressed genes for RNA-seq data and lists of genomic loci in bed format for ChIP-seq data. BigWig files containing normalized mapping signal are also generated. The analysis are performed according to user specified parameters. 
 Reports in html and pdf format are produced for easy exploration of the results. 
 
-Differential expressed gene lists and genomic loci lists can be further analyzed using our online tool AlgaeFUN for
-functional analysis.
+Differential expressed gene lists and genomic loci lists can be further analyzed using [**our online tool AlgaeFUN for
+functional analysis**](https://greennetwork.us.es/AlgaeFUN/).
 
 MARACAS supports a wide range of microalge including:
 
@@ -49,7 +48,7 @@ MARACAS requires the following dependencies that need to be previously installed
 * [TeX Live: TeX document production system](https://www.tug.org/texlive/)
 
 
-To install MARACAS you do NOT need sudo/operator/administrator permissions just follow these steps:
+To install MARACAS you do NOT need sudo/administrator permissions just follow these steps:
 
 1. Download the code from Github and uncompress it, for example, to your opt folder:
 
