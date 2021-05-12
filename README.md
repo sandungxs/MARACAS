@@ -54,8 +54,8 @@ To install MARACAS you do NOT need sudo/administrator permissions just follow th
 
 ```
 cd opt
-wget link
-unzip master
+wget https://github.com/fran-romero-campero/MARACAS/archive/refs/heads/master.zip
+unzip master.zip
 ```
 
 2. Add to your PATH variable defined in your .bashrc the path to the scripts folder so the MARACAS scripts can be executed from the command line: 
