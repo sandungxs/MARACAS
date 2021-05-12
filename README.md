@@ -196,7 +196,7 @@ The MARACAS output folder for an RNA-seq data analysis consists of the following
 In order to test that MARACAS is correctly installed in your computer or server make sure you have a **tmp** folder in your home directory and run the following instructions:
 
 ```
-marcas-rna-seq rna_seq_test_params_file_sequential.txt
+maracas-rna-seq rna_seq_test_params_file_sequential.txt
 maracas-chip-seq chip_seq_test_params_file_sequential.txt
 ```
 
