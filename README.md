@@ -1,5 +1,12 @@
 # MARACAS - MicroAlgae RnA-seq and Chip-seq AnalysiS
 
+
+
+[![DOI](https://zenodo.org/badge/165233815.svg)](https://zenodo.org/badge/latestdoi/165233815) [![Project Status: Active - The project has reached a stable, usable
+state and is being actively
+developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+
+
 ## What is MARACAS?
 
 MARACAS is an automatic computational pipeline specifically designed for the analysis of **microalgae** RNA-seq and ChIP-seq
