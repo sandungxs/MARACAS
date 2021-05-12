@@ -204,7 +204,7 @@ maracas-chip-seq chip_seq_test_params_file_sequential.txt
 In order to test that MARACAS is correctly installed in your cluster with SLURM make sure you have a **tmp** folder in your home directory and run the following instructions:
 
 ```
-marcas-rna-seq rna_seq_test_params_file_distributed.txt
+maracas-rna-seq rna_seq_test_params_file_distributed.txt
 maracas-chip-seq chip_seq_test_params_file_distributed.txt
 ```
 
