@@ -50,7 +50,7 @@ MARACAS requires the following dependencies that need to be previously installed
 
 To install MARACAS you do NOT need sudo/administrator permissions just follow these steps:
 
-1. Download the code from Github and uncompress it, for example, to your opt folder:
+1. Download the code from Github and uncompress it, for example, to your opt folder (make sure you have such a folder or create it with mkdir opt in your home directory):
 
 ```
 cd opt
