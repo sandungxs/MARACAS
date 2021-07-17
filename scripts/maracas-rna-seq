@@ -249,7 +249,7 @@ then
          sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
                           $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
-                          $MARACASdata/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
+                          $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
                           $WD/${MAIN_FOLDER} \
                           ${CONTROL_COND} \
