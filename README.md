@@ -20,18 +20,19 @@ functional analysis**](https://greennetwork.us.es/AlgaeFUN/).
 MARACAS supports a wide range of microalge including:
 
 * Ostreococcus tauri
+* Micromonas pusilla CCMP1545
+* Bathycoccus prasinos
+* Coccomyxa subellipsoidea
 * Chlamydomonas reinhardtii
-* Haematococcus lacustris
-* Dunaliella salina
 * Volvox Carteri
+* Dunaliella salina
+* Haematococcus lacustris
+* Chlomochloris zofingiensis
+* Klebsormidium nitens
+* Mesotaenium endlicherianum
+* Spirogloea muscicola
 * Phaeodactylum tricornutum
 * Nannochloropsis gaditana
-* Ostreococcus lucimarinus
-* Coccomyxa subellipsoidea
-* Bathycoccus prasinos
-* Klebsormidium nitens
-* Chlomochloris zofingiensis
-* Micromonas pusilla CCMP1545
 
 MARACAS can be executed in a sequential mode in a laptop or server and in a distributed/parallel mode in a computer cluster.
 
