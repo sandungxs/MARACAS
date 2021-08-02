@@ -145,7 +145,7 @@ echo " - Architecture where script will be run: " $ARCH
 echo " - Number of processors: " $NPROC
 echo " - Paired data: " $PAIRED
 
-if [ $DATA == "BD" ]
+if [ $DATA == "DB" ]
 then
 	echo " - Sample accession numbers: " ${ACC_SAMPLES[@]}
 else
@@ -240,6 +240,7 @@ then
                           ${FOLD_CHANGE} \
                           ${Q_VALUE} \
                           ${ACC_SAMPLES[$i]} \
+                          NULL \
                           $NPROC \
                           $ARCH \
                           $MICROALGAE

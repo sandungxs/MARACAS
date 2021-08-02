@@ -89,7 +89,7 @@ echo ""
 
 ## Generting sorted bam file
 samtools sort -@ $NPROC -m 2G -o ${ACC_NUMBER}.bam ${ACC_NUMBER}.sam
-#rm ${ACC_NUMBER}.sam
+rm ${ACC_NUMBER}.sam
 #rm *.fastq.gz
 #rm $HOME/ncbi/public/sra/${ACC_NUMBER}.sra
 samtools index -@ $NPROC ${ACC_NUMBER}.bam
