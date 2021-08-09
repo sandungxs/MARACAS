@@ -115,19 +115,22 @@ containing the results of the RNA-seq data analysis will be generated. For examp
 
 * **microalgae:** This parameter specifies the name of the microalge from which the
 RNA-seq data was generated. It can take one the following exact names:
-
-    * bathycoccus_prasinos
-    * chlamydomonas_reinhardtii
-    * chromochloris_zofingiensis
-    * coccomyxa_subellipsoidea
-    * dunaliella_salina
-    * klebsormidium_nitens
-    * micromonas_pusillaCCMP1545
-    * nannochloropsis_gaditana
+ 
     * ostreococcus_tauri
-    * phaeodactylum_tricornutum
-    * raphidocelis_subcapitata
+    * micromonas_pusillaCCMP1545
+    * bathycoccus_prasinos
+    * coccomyxa_subellipsoidea
+    * chlamydomonas_reinhardtii
     * volvox_carteri
+    * dunaliella_salina
+    * haematococcus_lacustris
+    * chlomochloris_zofingiensis
+    * klebsormidium_nitens
+    * mesotaenium_endlicherianum
+    * spirogloea_muscicola
+    * phaeodactylum_tricornutum
+    * nannochloropsis_gaditana
+
 
 * **main_folder:** This parameter specifies the name of the folder where the 
 final and intermediary results of the analysis will be saved. 
