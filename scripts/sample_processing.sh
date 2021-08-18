@@ -110,6 +110,8 @@ echo ${SAMPLE_FOLDER}/${ACC_NUMBER}.gtf >> ../../results/merge_list.txt
 stringtie -p $NPROC -e -B -G $ANNOTATION -o ${ACC_NUMBER}.gtf ${ACC_NUMBER}.bam
 rm ${ACC_NUMBER}.bam
 
+sed -i 's/#/HHAASSHH/g' t_data.ctab
+
 ## Synchronization
 if [ $ARCH == "SLURM" ]
 then
@@ -138,6 +140,8 @@ then
 
       Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'pdf_document')" 
       Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'html_document')" 
+
+      sed -i 's/HHAASSHH/#/g' ${SAMPLE_FOLDER}/../../results/*
    fi
 fi
 
