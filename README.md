@@ -58,12 +58,13 @@ MARACAS requires the following dependencies that need to be previously installed
 
 To install MARACAS you do NOT need sudo/administrator permissions just follow these steps:
 
-1. Download the code from Github and uncompress it, for example, to your opt folder (make sure you have such a folder or create it with mkdir opt in your home directory):
+1. Download the code from Github, for example, to your opt folder (make sure you have such a folder or create it with mkdir opt in your home directory):
 
 ```
+cd
+mkdir opt
 cd opt
-wget https://github.com/fran-romero-campero/MARACAS/archive/refs/heads/master.zip
-unzip master.zip
+git clone https://github.com/fran-romero-campero/MARACAS.git
 ```
 
 2. Add to your PATH variable defined in your .bashrc the path to the scripts folder so the MARACAS scripts can be executed from the command line: 
@@ -72,7 +73,6 @@ unzip master.zip
 cd
 echo "PATH=$PATH:$HOME/opt/MARACAS/scripts" >> .bashrc
 source .bashrc
-
 ```
 
 3. Add to your .bashrc a new variable MARACAS indicating the path to the MARACAS folder:  
