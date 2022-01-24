@@ -380,8 +380,12 @@ for(i in 1:number.samples)
 write(x = "\n",file=output.file, append=T)
 write(x = "\n",file=output.file, append=T)
 write(x="[**Click here to download a matrix in tab-separated value format containing 
-estimates for gene expression computed from your RNA-seq data. Rows represent genes
+estimates for gene expression computed from your RNA-seq data measured as FPKM. Rows represent genes
       and columns conditions.**](./gene_expression.tsv)", file=output.file, append=T)
+write(x = "\n",file=output.file, append=T)
+write(x="[**Click here to download a matrix in tab-separated value format containing 
+estimates for gene expression computed from your RNA-seq data measured as TPM. Rows represent genes
+      and columns conditions.**](./transcript_count_matrix.csv)", file=output.file, append=T)
 write(x = "\n",file=output.file, append=T)
 
 ## Global Gene Expression
