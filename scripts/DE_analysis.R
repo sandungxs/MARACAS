@@ -387,6 +387,10 @@ write(x="[**Click here to download a matrix in tab-separated value format contai
 estimates for gene expression computed from your RNA-seq data measured as TPM. Rows represent genes
       and columns conditions.**](./transcript_count_matrix.csv)", file=output.file, append=T)
 write(x = "\n",file=output.file, append=T)
+write(x="[**Click here to download a matrix in tab-separated value format containing 
+estimates for gene expression computed from your RNA-seq data measured as raw read count. Rows represent genes
+      and columns conditions.**](./gene_count_matrix.csv)", file=output.file, append=T)
+write(x = "\n",file=output.file, append=T)
 
 ## Global Gene Expression
 write(x = "\n", file=output.file, append=T)
