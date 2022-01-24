@@ -15,3 +15,6 @@ stringtie --merge -G $ANNOTATION -o stringtie_merged.gtf merge_list.txt
 
 ## Comparing our assembly with the reference
 gffcompare -r $ANNOTATION -G -o comparison stringtie_merged.gtf
+
+## Generation of read count and TPM
+prepDE.py -i ../samples
