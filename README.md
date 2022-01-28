@@ -132,7 +132,7 @@ RNA-seq data was generated. It can take one the following exact names:
     * phaeodactylum_tricornutum
     * nannochloropsis_gaditana
 
-* **Read mapper:** This parameters specifies the software tool to perform read mapping. Two different options are provided HISAT2 and Kallisto. The default value is HISAT2. Please, be aware that Kallisto cannot be use for the microalgae *Mesotaenium endlicherianum* or *Spirogloea muscicola*.
+* **read mapper:** This parameters specifies the software tool to perform read mapping. Two different options are provided HISAT2 and Kallisto. The default value is HISAT2. Please, be aware that Kallisto cannot be use for the microalgae *Mesotaenium endlicherianum* or *Spirogloea muscicola*.
 
 * **main_folder:** This parameter specifies the name of the folder where the 
 final and intermediary results of the analysis will be saved. 
