@@ -87,6 +87,15 @@ then
     	$MAPPER = "hisat2"
 fi
 
+if [ $MAPPER != "kallisto" ] && [ $MAPPER != "hisat2" ]
+then
+ 	echo ""
+	echo "---------------------------------------------------"
+	echo "Read mapper not supported by MARACAS. Please use"
+	echo "hisat2 or kallisto instead."
+	echo "---------------------------------------------------"
+	echo ""
+fi
 ## Load data source
 DATA=$(grep data_source: $PARAMS | awk '{print $2}')
 
