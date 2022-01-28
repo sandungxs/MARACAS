@@ -80,6 +80,13 @@ NUM_SAMPLES=$(grep number_of_samples: $PARAMS | awk '{ print $2 }')
 ## Load microalgae
 MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
 
+## Load read mapper
+MAPPER=$(grep read_mapper: $PARAMS | awk '{ print $2 }')
+if [ -z $MAPPER ] 
+then
+    	$MAPPER = "hisat2"
+fi
+
 ## Load data source
 DATA=$(grep data_source: $PARAMS | awk '{print $2}')
 
@@ -227,11 +234,11 @@ then
 
       cd $WD/${MAIN_FOLDER}/samples/sample_$(($i + 1))
 
-      if [ $DATA == "DB" ]
+      if [ $DATA == "DB" ] 
       then
          sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                          $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                           $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
                           $WD/${MAIN_FOLDER} \
@@ -244,12 +251,13 @@ then
                           $NPROC \
                           $ARCH \
                           $MICROALGAE
+                          $MAPPER
          #sleep 10m
-      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+      elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ] 
       then
          sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                          $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                           $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
                           $WD/${MAIN_FOLDER} \
@@ -262,11 +270,12 @@ then
                           $NPROC \
                           $ARCH \
                           $MICROALGAE
+                          $MAPPER
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
          sbatch $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                           $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                          $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                          $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                           $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                           ${NUM_SAMPLES} \
                           $WD/${MAIN_FOLDER} \
@@ -279,6 +288,7 @@ then
                           $NPROC \
                           $ARCH \
                           $MICROALGAE
+                          $MAPPER
       fi
    done
 
@@ -293,7 +303,7 @@ then
          then
             qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sge $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                                              $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
                                              $WD/${MAIN_FOLDER} \
@@ -305,12 +315,13 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
+                                             $MAPPER
 	    sleep 30m
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
             qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sge $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                                              $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
                                              $WD/${MAIN_FOLDER} \
@@ -322,11 +333,12 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
+                                             $MAPPER
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
             qsub -o $WD/${MAIN_FOLDER}/logs/${ACC_SAMPLES[$i]} $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                                              $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
                                              $WD/${MAIN_FOLDER} \
@@ -339,6 +351,7 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
+                                             $MAPPER
 	    sleep 30m
          fi
 
@@ -371,7 +384,7 @@ then
          then
             bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                                              $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
                                              $WD/${MAIN_FOLDER} \
@@ -383,11 +396,12 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
+                                             $MAPPER
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
             bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                                              $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
                                              $WD/${MAIN_FOLDER} \
@@ -400,11 +414,12 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
+                                             $MAPPER
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
             bash $MARACAS/scripts/sample_processing.sh $DATA $PAIRED \
                                              $WD/${MAIN_FOLDER}/samples/sample_$(($i +1)) \
-                                             $MARACAS/data/${MICROALGAE}/genome/hisat2_index_${MICROALGAE} \
+                                             $MARACAS/data/${MICROALGAE}/genome/${MAPPER}_index_${MICROALGAE} \
                                              $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf \
                                              ${NUM_SAMPLES} \
                                              $WD/${MAIN_FOLDER} \
@@ -417,6 +432,7 @@ then
                                              $NPROC \
                                              $ARCH \
                                              $MICROALGAE
+                                             $MAPPER
          fi
    done
 
