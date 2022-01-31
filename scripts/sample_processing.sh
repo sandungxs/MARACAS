@@ -21,11 +21,12 @@ FASTQ_RIGHT=${13}
 NPROC=${14}
 ARCH=${15}
 MICROALGAE=${16}
+MAPPER=${17}
+ACTUAL_NUM=
 
 ACC_NUMBER=${FASTQ_LEFT}
 
 ## Downloading or copying sample file depending on data source
-
 echo ""
 echo "* Downloading or copying files *" 
 echo "*******************************"
@@ -43,11 +44,12 @@ elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
 then
 	cp ${FASTQ_LEFT} sample_1.fastq.gz
 	cp ${FASTQ_RIGHT} sample_2.fastq.gz
-	ACC_NUMBER=sample   
+	ACC_NUMBER=sample   ####y luego como diferencio una muestra de otra? 
 fi
 
 ## Sample quality control and read mapping to reference genome
-
+if [ $MAPPER == "hisat2" ]
+then
 if [ -f ${ACC_NUMBER}_2.fastq.gz ]
 then
 
@@ -58,7 +60,7 @@ then
    
    fastqc ${ACC_NUMBER}_1.fastq.gz
    fastqc ${ACC_NUMBER}_2.fastq.gz
-
+   
    echo ""
    echo "*    Read Mapping  *" 
    echo "********************"
@@ -145,3 +147,101 @@ then
    fi
 fi
 
+fi
+
+
+############################# Sample processing with kallisto##################
+
+if [ $MAPPER == "kallisto" ]
+then
+
+## Downloading or copying sample file depending on data source
+echo ""
+echo "* Downloading or copying files *" 
+echo "*******************************"
+echo ""
+
+cd ${SAMPLE_FOLDER} 
+if [ $DATA == "DB" ]
+then
+	fastq-dump --split-files --gzip ${ACC_NUMBER}
+elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+then
+	cp ${ACC_NUMBER} sample_1.fastq.gz
+	ACC_NUMBER=sample
+elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+then
+	cp ${FASTQ_LEFT} sample_1.fastq.gz
+	cp ${FASTQ_RIGHT} sample_2.fastq.gz
+	ACC_NUMBER=sample   
+fi
+
+if [ -f ${ACC_NUMBER}_2.fastq.gz ]
+then
+
+   echo ""
+   echo "* Quality Analysis *" 
+   echo "********************"
+   echo ""
+   
+   fastqc ${ACC_NUMBER}_1.fastq.gz
+   fastqc ${ACC_NUMBER}_2.fastq.gz
+   
+   echo ""
+   echo "*    Read Mapping  *" 
+   echo "********************"
+   echo ""
+
+    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${MICROALGAE} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
+
+else
+
+   echo ""
+   echo "* Quality Analysis *" 
+   echo "********************"
+   echo ""
+
+   fastqc ${ACC_NUMBER}_1.fastq.gz
+   
+   echo ""
+   echo "* Read Mapping     *" 
+   echo "********************"
+   echo ""
+   
+    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER}_ --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
+fi
+
+## Synchronization
+if [ $ARCH == "SLURM" ]
+then
+   ## Write in blackboard
+   echo "SAMPLE " ${CURRENT_REPLICATE} " DONE" >> ${SAMPLE_FOLDER}/../../logs/blackboard.txt
+
+   ## Count number of line in the blackboard to check the number of processed samples
+   PROCESSED_SAMPLES=$(wc -l ${SAMPLE_FOLDER}/../../logs/blackboard.txt | awk '{print $1}')
+
+   ## Submit scripts for transcriptome merging and differential gene expression 
+   if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
+   then
+      
+      sbatch $MARACAS/scripts/transcriptome_merging.sh ${SAMPLE_FOLDER}/../../ $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+      
+      echo ""
+      echo "* Computing differential gene expression *" 
+      echo "******************************************"
+      echo ""
+      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER
+      
+      echo ""
+      echo "* Generating output reports *" 
+      echo "*****************************"
+      echo ""
+
+      Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'pdf_document')" 
+      Rscript -e "rmarkdown::render('${SAMPLE_FOLDER}/../../results/DE_report.Rmd', 'html_document')" 
+
+      sed -i 's/HHAASSHH/#/g' ${SAMPLE_FOLDER}/../../results/*
+   fi
+fi
+
+fi #final
