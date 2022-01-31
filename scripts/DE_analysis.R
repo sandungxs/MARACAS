@@ -29,7 +29,7 @@ experimental.condition <- args[3]
 fc.threshold <- as.numeric(args[4])
 q.val.threshold <- as.numeric(args[5])
 microalgae <- args[6]
-
+mapper <- args[7]
 setwd(working.directory)
 
 ## Load libraries
@@ -76,21 +76,26 @@ for(i in 1:nrow(experimental.design))
 ## Extract basic statistics for the result of each sample processing
 ## TODO!!!!!
 
-## Load results from hisat2 + stringtie
-bg.data <- ballgown(dataDir = ".", samplePattern = "sample", pData=experimental.design)
-
-## Extract gene expression and name columns with sample.labels
-gene.expression <- gexpr(bg.data)
-colnames(gene.expression) <- sample.labels
-head(gene.expression)
-dim(gene.expression)
-df.gene.expression <- data.frame(row.names(gene.expression),gene.expression)
-colnames(df.gene.expression)[1] <- "geneID"
-rownames(df.gene.expression) <- NULL
-
-write.table(x = df.gene.expression,file = "../results/gene_expression.tsv",
-            quote = F,sep = "\t",row.names = F)
-
+if (mapper == "hisat2")
+{
+  ## Load results from hisat2 + stringtie
+  bg.data <- ballgown(dataDir = ".", samplePattern = "sample", pData=experimental.design)
+  
+  ## Extract gene expression and name columns with sample.labels
+  gene.expression <- gexpr(bg.data)
+  colnames(gene.expression) <- sample.labels
+  head(gene.expression)
+  dim(gene.expression)
+  df.gene.expression <- data.frame(row.names(gene.expression),gene.expression)
+  colnames(df.gene.expression)[1] <- "geneID"
+  rownames(df.gene.expression) <- NULL
+  
+  write.table(x = df.gene.expression,file = "../results/gene_expression.tsv",
+              quote = F,sep = "\t",row.names = F)
+}else if (mapper == "kallisto")
+{
+  
+}
 
 
 ## Scatter plots 
