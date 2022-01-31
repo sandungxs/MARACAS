@@ -157,6 +157,7 @@ echo "The following parameters were loaded."
 echo " - Working directory: " $WD
 echo " - Main folder: " $MAIN_FOLDER
 echo " - Microalgae: " $MICROALGAE
+echo " - Read Mapper: " $MAPPER
 echo " - Architecture where script will be run: " $ARCH
 echo " - Number of processors: " $NPROC
 echo " - Paired data: " $PAIRED
