@@ -22,7 +22,6 @@ NPROC=${14}
 ARCH=${15}
 MICROALGAE=${16}
 MAPPER=${17}
-ACTUAL_NUM=
 
 ACC_NUMBER=${FASTQ_LEFT}
 
@@ -192,7 +191,7 @@ then
    echo "********************"
    echo ""
 
-    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${MICROALGAE} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
+    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
 
 else
 
@@ -208,7 +207,7 @@ else
    echo "********************"
    echo ""
    
-    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER}_ --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
+    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
 fi
 
 ## Synchronization
