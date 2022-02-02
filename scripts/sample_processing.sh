@@ -47,7 +47,7 @@ then
 fi
 
 ## Sample quality control and read mapping to reference genome
-if [ $MAPPER == "hisat2" ]
+if [ "$MAPPER" == "hisat2" ]
 then
 if [ -f ${ACC_NUMBER}_2.fastq.gz ]
 then
@@ -151,7 +151,7 @@ fi
 
 ############################# Sample processing with kallisto##################
 
-if [ $MAPPER == "kallisto" ]
+if [ "$MAPPER" == "kallisto" ]
 then
 
 ## Downloading or copying sample file depending on data source
@@ -208,6 +208,7 @@ else
    echo ""
    
     kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
+    
 fi
 
 ## Synchronization
