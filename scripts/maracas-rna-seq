@@ -67,7 +67,6 @@ echo ""
 
 ## Load installation directory
 ##INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
-#MARACAS=$('/home/ana/Documentos/GitHub/MARACAS')
 
 ## Load working directory
 eval WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
