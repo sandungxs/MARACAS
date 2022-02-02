@@ -67,7 +67,7 @@ echo ""
 
 ## Load installation directory
 ##INS_DIR=$(grep installation_directory: $PARAMS | awk '{ print $2 }')
-MARACAS=$(/home/ana/Documentos/GitHub/MARACAS/)
+#MARACAS=$('/home/ana/Documentos/GitHub/MARACAS')
 
 ## Load working directory
 eval WD=$(grep working_directory: $PARAMS | awk '{ print $2 }')
@@ -85,10 +85,10 @@ MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
 MAPPER=$(grep read_mapper: $PARAMS | awk '{ print $2 }')
 if [ -z $MAPPER ] 
 then
-    	$MAPPER == "hisat2"
+    	$MAPPER = $("hisat2")
 fi
 
-if [ $MAPPER -ne "kallisto" ] && [ $MAPPER -ne "hisat2" ]
+if [ "$MAPPER" != "kallisto" ] && [ "$MAPPER" != "hisat2" ]
 then
  	echo ""
 	echo "---------------------------------------------------"
