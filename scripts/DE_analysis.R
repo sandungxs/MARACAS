@@ -95,14 +95,27 @@ if (mapper == "hisat2")
               quote = F,sep = "\t",row.names = F)
 }else if (mapper == "kallisto")
 {
+  random_sample <- read.table(file="./sample_1/kallisto_out/abundance.tsv", header=T)
+  gene.expression <- data.frame(matrix(NA, nrow=length(random_sample[,1]), ncol=number.samples))
+  names <- c()
   
+  for (i in 1:number.samples)
+  {
+    #cambiar la ruta de opt a la carpeta de la muestra "samples/sample_", i, "/kallisto_out/abundance.tsv"
+    kallisto_current_sample <- read.table(file=paste("./sample_", i,"/kallisto_out/abundance.tsv"),header=T)
+    gene.expression[,i] <- kallisto_current_sample[,5]
+    names <- c(names, paste("sample_", i, sep=""))
+  }
+  colnames(gene.expression) <- names
+  rownames(gene.expression) <- random_sample[,1]
+  write.table(gene.expression, file = "../results/gene_expression.tsv", quote = F )
 }
 
 
 ## Scatter plots 
-number.samples <- nrow(experimental.design)
 png(file="../results/scatter_plots.png",width = 1500,height = 1500)
 par(mfrow=c(number.samples,number.samples))
+
 for(i in 1:number.samples)
 {
   for(j in 1:number.samples)
@@ -117,9 +130,18 @@ for(i in 1:number.samples)
 dev.off()
 
 ## Boxplot before normalization
-png(filename = "../results/boxplot_before_normalization.png")
+if(mapper == "hisat2")
+{
+  png(filename = "../results/boxplot_before_normalization.png")
 boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,las=2,outline=F)
 dev.off()
+}else if (mapper == "kallisto")
+{
+  png(filename = "../results/boxplot_before_normalization.png")
+  boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,las=2,outline=F)
+  dev.off()
+}
+
 
 ## PCA analysis
 pca.gene.expression <- data.frame(colnames(gene.expression),t(gene.expression))

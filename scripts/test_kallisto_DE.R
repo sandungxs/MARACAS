@@ -12,19 +12,19 @@ experimental.condition <- "iron"
 #mapper <- args[7]
 mapper <- "kallisto"
 
-setwd(working.directory)
 
-random_sample <- read.table(file=paste(working.directory,"opt/kallisto_out_sample_1/abundance.tsv",
-                                       sep = ""), header=T)
-gene.expression <- data.frame(random_sample[,1])
-names <- c("transcript_ids")
-for (i in 1:num_samples)
+random_sample <- read.table(file=paste(working.directory,"opt/kallisto_out_sample_1/abundance.tsv",sep = ""), header=T)
+gene.expression <- data.frame(matrix(NA, nrow=length(random_sample[,1]), ncol=number.samples))
+names <- c()
+
+for (i in 1:number.samples)
 {
   current_sample <- paste(working.directory,"opt/kallisto_out_sample_", i, "/abundance.tsv", sep = "")
   #cambiar la ruta de opt a la carpeta de la muestra "samples/sample_", i, "/kallisto_out/abundance.tsv"
   kallisto_current_sample <- read.table(file=current_sample,header=T)
-  gene.expression <- cbind(gene.expression,kallisto_current_sample[,5])
+  gene.expression[,i] <- kallisto_current_sample[,5]
   names <- c(names, paste("sample_", i, sep=""))
 }
 colnames(gene.expression) <- names
+rownames(gene.expression) <- random_sample[,1]
 
