@@ -191,7 +191,7 @@ then
    echo "********************"
    echo ""
 
-    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
+    kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
 
 else
 
@@ -207,7 +207,7 @@ else
    echo "********************"
    echo ""
    
-    kallisto quant -i ${MAPPER}_index_${MICROALGAE}.idx  -b 100 -o kallisto_out_${ACC_NUMBER} --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
+    kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
     
 fi
 
@@ -228,7 +228,7 @@ then
       echo "* Computing differential gene expression *" 
       echo "******************************************"
       echo ""
-      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER
+      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER $NUM_SAMPLES
       
       echo ""
       echo "* Generating output reports *" 
