@@ -224,8 +224,6 @@ then
    if [ ${PROCESSED_SAMPLES} -eq ${NUM_SAMPLES} ]
    then
       
-      sbatch $MARACAS/scripts/transcriptome_merging.sh ${SAMPLE_FOLDER}/../../ $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
-      
       echo ""
       echo "* Computing differential gene expression *" 
       echo "******************************************"
