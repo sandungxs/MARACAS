@@ -13,16 +13,17 @@ mapper <- "kallisto"
 num_samples <- 2
 setwd(working.directory)
 
-gene.expression <- data.frame()
-i<-1
+random_sample <- read.table(file=paste(working.directory,"opt/kallisto_out_sample_1/abundance.tsv",
+                                       sep = ""), header=T)
+gene.expression <- data.frame(random_sample[,1])
+names <- c("transcript_ids")
 for (i in 1:num_samples)
 {
   current_sample <- paste(working.directory,"opt/kallisto_out_sample_", i, "/abundance.tsv", sep = "")
   #cambiar la ruta de opt a la carpeta de la muestra "samples/sample_", i, "/kallisto_out/abundance.tsv"
-  kallisto_current_sample <- read.table(file="../opt/kallisto_out_sample1/abundance.tsv",header=T)
+  kallisto_current_sample <- read.table(file=current_sample,header=T)
+  gene.expression <- cbind(gene.expression,kallisto_current_sample[,5])
+  names <- c(names, paste("sample_", i, sep=""))
 }
-kallisto_sample_1 <- read.table(file="../opt/kallisto_out_sample1/abundance.tsv",header=T)
-kallisto_sample_2 <- read.table(file="../opt/kallisto_out_sample2/abundance.tsv",header=T)
+colnames(gene.expression) <- names
 
-gene.expression <- data.frame(kallisto_sample_1[,1], kallisto_sample_1[,5], kallisto_sample_2[,5])
-colnames(gene.expression) <- c("Transcripts ID", "sample_1", "sample_2")
