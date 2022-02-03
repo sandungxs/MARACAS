@@ -41,6 +41,7 @@ library("factoextra")
 # Load experimental design
 experimental.design <- read.csv("experimental_design.csv",as.is=T)
 experimental.design
+number.samples <- nrow(experimental.design)
 
 ## Sort samples 
 sorted.samples <- sort(experimental.design$sample,ind=T)

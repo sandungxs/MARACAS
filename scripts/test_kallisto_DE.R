@@ -1,7 +1,9 @@
 #working.directory <- arg[1]
 working.directory <- "/home/ana/Documentos/GitHub/MARACAS/"
 # control.condition <- args[2]
+control.condition <- "no_iron"
 # experimental.condition <- args[3]
+experimental.condition <- "iron"
 # fc.threshold <- as.numeric(args[4])
 # q.val.threshold <- as.numeric(args[5])
 # microalgae <- args[6]
@@ -9,8 +11,7 @@ working.directory <- "/home/ana/Documentos/GitHub/MARACAS/"
 #nuevo
 #mapper <- args[7]
 mapper <- "kallisto"
-#num_samples <- args[8]
-num_samples <- 2
+
 setwd(working.directory)
 
 random_sample <- read.table(file=paste(working.directory,"opt/kallisto_out_sample_1/abundance.tsv",

@@ -228,7 +228,7 @@ then
       echo "* Computing differential gene expression *" 
       echo "******************************************"
       echo ""
-      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER $NUM_SAMPLES
+      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER 
       
       echo ""
       echo "* Generating output reports *" 
