@@ -191,7 +191,7 @@ then
    echo "********************"
    echo ""
 
-    kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
+   kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
 
 else
 
@@ -207,7 +207,7 @@ else
    echo "********************"
    echo ""
    
-    kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
+   kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE} -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
     
 fi
 
