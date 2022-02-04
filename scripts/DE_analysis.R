@@ -95,13 +95,13 @@ if (mapper == "hisat2")
               quote = F,sep = "\t",row.names = F)
 }else if (mapper == "kallisto")
 {
+  #Extract transcripts abundance from each kallisto output to create a gene expression table
   random_sample <- read.table(file="./sample_1/kallisto_out/abundance.tsv", header=T)
   gene.expression <- data.frame(matrix(NA, nrow=length(random_sample[,1]), ncol=number.samples))
   names <- c()
   
   for (i in 1:number.samples)
   {
-    #cambiar la ruta de opt a la carpeta de la muestra "samples/sample_", i, "/kallisto_out/abundance.tsv"
     kallisto_current_sample <- read.table(file=paste("./sample_", i,"/kallisto_out/abundance.tsv"),header=T)
     gene.expression[,i] <- kallisto_current_sample[,5]
     names <- c(names, paste("sample_", i, sep=""))
