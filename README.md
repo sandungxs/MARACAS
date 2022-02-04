@@ -42,7 +42,7 @@ MARACAS requires the following dependencies that need to be previously installed
 
 * [FASTQC: A quality control tool for high throughput sequence data](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 * [HISAT2: graph-based alignment of next generation sequencing reads to a population of genomes](http://daehwankimlab.github.io/hisat2/)
-*[Kallisto: RNA-seq quantification tool that is faster and achieves similar accuracy](http://pachterlab.github.io/kallisto/)
+* [Kallisto: RNA-seq quantification tool that is faster and achieves similar accuracy](http://pachterlab.github.io/kallisto/)
 * [Bowtie 2: an ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 * [Samtools: Reading/writing/editing/indexing/viewing SAM/BAM/CRAM format](http://www.htslib.org/)
 * [deepTools: tools for exploring deep sequencing data](https://deeptools.readthedocs.io/en/develop/index.html)
