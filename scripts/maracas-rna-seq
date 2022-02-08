@@ -82,9 +82,11 @@ MICROALGAE=$(grep microalgae: $PARAMS | awk '{ print $2 }')
 
 ## Load read mapper
 MAPPER=$(grep read_mapper: $PARAMS | awk '{ print $2 }')
+
 if [ -z $MAPPER ] 
 then
-    	$MAPPER = $("hisat2")
+    	MAPPER="hisat2"
+        echo "Ahora si es hisat2"
 fi
 
 if [ "$MAPPER" != "kallisto" ] && [ "$MAPPER" != "hisat2" ]
@@ -260,7 +262,7 @@ then
                           NULL \
                           $NPROC \
                           $ARCH \
-                          $MICROALGAE
+                          $MICROALGAE \
                           $MAPPER
          #sleep 10m
       elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ] 
@@ -279,7 +281,7 @@ then
                           NULL \
                           $NPROC \
                           $ARCH \
-                          $MICROALGAE
+                          $MICROALGAE \
                           $MAPPER
       elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
       then
@@ -297,7 +299,7 @@ then
                           ${LOC_SAMPLES_RIGHT[$i]} \
                           $NPROC \
                           $ARCH \
-                          $MICROALGAE
+                          $MICROALGAE \
                           $MAPPER
       fi
    done
@@ -324,7 +326,7 @@ then
                                              ${ACC_SAMPLES[$i]} \
                                              $NPROC \
                                              $ARCH \
-                                             $MICROALGAE
+                                             $MICROALGAE \
                                              $MAPPER
 	    sleep 30m
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
@@ -342,7 +344,7 @@ then
                                              ${LOC_SAMPLES[$i]} \
                                              $NPROC \
                                              $ARCH \
-                                             $MICROALGAE
+                                             $MICROALGAE \
                                              $MAPPER
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
@@ -360,7 +362,7 @@ then
                                              ${LOC_SAMPLES_RIGHT[$i]} \
                                              $NPROC \
                                              $ARCH \
-                                             $MICROALGAE
+                                             $MICROALGAE \
                                              $MAPPER
 	    sleep 30m
          fi
@@ -405,7 +407,7 @@ then
                                              ${ACC_SAMPLES[$i]} \
                                              $NPROC \
                                              $ARCH \
-                                             $MICROALGAE
+                                             $MICROALGAE \
                                              $MAPPER
          elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
          then
@@ -423,7 +425,7 @@ then
                                              NULL \
                                              $NPROC \
                                              $ARCH \
-                                             $MICROALGAE
+                                             $MICROALGAE \
                                              $MAPPER
          elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
          then
@@ -441,19 +443,22 @@ then
                                              ${LOC_SAMPLES_RIGHT[$i]} \
                                              $NPROC \
                                              $ARCH \
-                                             $MICROALGAE
+                                             $MICROALGAE \
                                              $MAPPER
          fi
    done
 
-   bash $MARACAS/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+   if [ $MAPPER == "hisat2" ]
+   then	
+         bash $MARACAS/scripts/transcriptome_merging.sh $WD/${MAIN_FOLDER} $MARACAS/data/${MICROALGAE}/annotation/${MICROALGAE}.gtf
+   fi
    
    echo ""
    echo "* Computing differential gene expression *" 
    echo "******************************************"
    echo ""
    
-   Rscript $MARACAS/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+   Rscript $MARACAS/scripts/DE_analysis.R $WD/${MAIN_FOLDER}/samples ${CONTROL_COND} ${EXPERIMENTAL_COND} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER
    
    echo ""
    echo "* Generating output reports *" 

@@ -21,6 +21,15 @@
 # q.val.threshold <- 1
 # microalgae <- "Micromonas pusilla CCMP1545"
 
+# working.directory <- "/home/fran/tmp/rna_seq_test/samples/"
+# control.condition <- "iron"
+# experimental.condition <- "no_iron"
+# fc.threshold <- 2
+# q.val.threshold <- 1
+# microalgae <- "test"
+# mapper <- "kallisto"
+
+
 args <- commandArgs(trailingOnly=TRUE)
 
 working.directory <- args[1]
@@ -93,22 +102,34 @@ if (mapper == "hisat2")
   
   write.table(x = df.gene.expression,file = "../results/gene_expression.tsv",
               quote = F,sep = "\t",row.names = F)
-}else if (mapper == "kallisto")
+} else if (mapper == "kallisto")
 {
   #Extract transcripts abundance from each kallisto output to create a gene expression table
   random_sample <- read.table(file="./sample_1/kallisto_out/abundance.tsv", header=T)
   gene.expression <- data.frame(matrix(NA, nrow=length(random_sample[,1]), ncol=number.samples))
+  tpm.expression <- data.frame(matrix(NA, nrow=length(random_sample[,1]), ncol=number.samples))
+  gene.count <- data.frame(matrix(NA, nrow=length(random_sample[,1]), ncol=number.samples))
   names <- c()
   
   for (i in 1:number.samples)
   {
-    kallisto_current_sample <- read.table(file=paste("./sample_", i,"/kallisto_out/abundance.tsv"),header=T)
+    kallisto_current_sample <- read.table(file=paste(c("./sample_", i,"/kallisto_out/abundance.tsv"),collapse=""),header=T)
     gene.expression[,i] <- kallisto_current_sample[,5]
+    tpm.expression[,i] <- kallisto_current_sample[,5]
+    gene.count[,i] <- kallisto_current_sample[,4]
     names <- c(names, paste("sample_", i, sep=""))
   }
   colnames(gene.expression) <- names
   rownames(gene.expression) <- random_sample[,1]
   write.table(gene.expression, file = "../results/gene_expression.tsv", quote = F )
+  
+  colnames(tpm.expression) <- names
+  rownames(tpm.expression) <- random_sample[,1]
+  write.table(tpm.expression, file = "../results/transcript_count_matrix.csv", quote = F )
+  
+  colnames(gene.count) <- names
+  rownames(gene.count) <- random_sample[,1]
+  write.table(gene.count, file = "../results/gene_count_matrix.csv", quote = F )
 }
 
 
@@ -389,17 +410,24 @@ for(i in 1:number.samples)
                   experimental.design$sample[i],
                   "/sample_1_fastqc.html), "), collapse=""), 
         file=output.file, append=T)
-  write(x=paste(c("[BigWig file with mapping signal](../samples/",
-                  experimental.design$sample[i],"/sample.bw)"),
-                collapse=""), 
-        file=output.file, append=T)
-  
-  mapping.stats <- readLines(con = paste(c( experimental.design$sample[i],
-                                            "/mapping_stats"),collapse=""),n = 6) 
-  write(x = "\n",file=output.file, append=T)
-  for(j in 1:6)
+  if( mapper == "hisat2")
   {
-    write(x=paste(c("\t",mapping.stats[j],"\n"),collapse = ""),file=output.file, append=T)
+    write(x=paste(c("[BigWig file with mapping signal](../samples/",
+                    experimental.design$sample[i],"/sample.bw)"),
+                  collapse=""), 
+          file=output.file, append=T)
+  }
+  
+  if( mapper == "hisat2" )
+  {
+    
+    mapping.stats <- readLines(con = paste(c( experimental.design$sample[i],
+                                              "/mapping_stats"),collapse=""),n = 6) 
+    write(x = "\n",file=output.file, append=T)
+    for(j in 1:6)
+    {
+      write(x=paste(c("\t",mapping.stats[j],"\n"),collapse = ""),file=output.file, append=T)
+    }
   }
   #write(x = paste(c("\t",mapping.stats[6]),collapse = ""),file=output.file, append=T)
   write(x = "\n",file=output.file, append=T)

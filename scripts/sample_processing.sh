@@ -43,7 +43,7 @@ elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
 then
 	cp ${FASTQ_LEFT} sample_1.fastq.gz
 	cp ${FASTQ_RIGHT} sample_2.fastq.gz
-	ACC_NUMBER=sample   ####y luego como diferencio una muestra de otra? 
+	ACC_NUMBER=sample 
 fi
 
 ## Sample quality control and read mapping to reference genome
@@ -132,7 +132,8 @@ then
       echo "* Computing differential gene expression *" 
       echo "******************************************"
       echo ""
-      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE
+      echo "Mapper is " $MAPPER
+      Rscript $MARACAS/scripts/DE_analysis.R ${SAMPLE_FOLDER}/../ ${CONTROL} ${EXPERIMENTAL} $FOLD_CHANGE $Q_VALUE $MICROALGAE $MAPPER
       
       echo ""
       echo "* Generating output reports *" 
@@ -155,25 +156,25 @@ if [ "$MAPPER" == "kallisto" ]
 then
 
 ## Downloading or copying sample file depending on data source
-echo ""
-echo "* Downloading or copying files *" 
-echo "*******************************"
-echo ""
+##echo ""
+##echo "* Downloading or copying files *" 
+##echo "*******************************"
+##echo ""
 
-cd ${SAMPLE_FOLDER} 
-if [ $DATA == "DB" ]
-then
-	fastq-dump --split-files --gzip ${ACC_NUMBER}
-elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
-then
-	cp ${ACC_NUMBER} sample_1.fastq.gz
-	ACC_NUMBER=sample
-elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
-then
-	cp ${FASTQ_LEFT} sample_1.fastq.gz
-	cp ${FASTQ_RIGHT} sample_2.fastq.gz
-	ACC_NUMBER=sample   
-fi
+##cd ${SAMPLE_FOLDER} 
+##if [ $DATA == "DB" ]
+##then
+##	fastq-dump --split-files --gzip ${ACC_NUMBER}
+##elif [ $DATA == "FILES" ] && [ $PAIRED == "FALSE" ]
+##then
+##	cp ${ACC_NUMBER} sample_1.fastq.gz
+##	ACC_NUMBER=sample
+##elif [ $DATA == "FILES" ] && [ $PAIRED == "TRUE" ]
+##then
+##	cp ${FASTQ_LEFT} sample_1.fastq.gz
+##	cp ${FASTQ_RIGHT} sample_2.fastq.gz
+##	ACC_NUMBER=sample   
+##fi
 
 if [ -f ${ACC_NUMBER}_2.fastq.gz ]
 then
@@ -191,7 +192,7 @@ then
    echo "********************"
    echo ""
 
-   kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE}.txt -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
+   kallisto quant -i ${INDEX}.idx  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE}.txt -l 200 -s 10 --fr-stranded ${ACC_NUMBER}_1.fastq.gz --rf-stranded ${ACC_NUMBER}_2.fastq.gz
 
 else
 
@@ -207,7 +208,7 @@ else
    echo "********************"
    echo ""
    
-   kallisto quant -i ${INDEX}  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE}.txt -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
+   kallisto quant -i ${INDEX}.idx  -b 100 -o kallisto_out --genomebam --plaintext --gtf ${ANNOTATION} --chromosomes $MARACAS/data/${MICROALGAE}/genome/chrom_${MICROALGAE}.txt -l 200 -s 10 --single ${ACC_NUMBER}_1.fastq.gz 
     
 fi
 
