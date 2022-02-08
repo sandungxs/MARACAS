@@ -208,9 +208,17 @@ for(i in 1:ncol(gene.expression))
 ## Log2 transformation
 log.gene.expression <- log2(gene.expression+1)
 
-png(filename = "../results/boxplot_after_normalization.png")
-boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
-dev.off()
+if (mapper == "hisat2")
+{
+   png(filename = "../results/boxplot_after_normalization.png")
+   boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+   dev.off()
+} else if (mapper == "kallisto")
+{
+   png(filename = "../results/boxplot_after_normalization.png")
+   boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+   dev.off()
+}
 
 ## Alternativamente la normalización se puede realizar con el paquete normalyzer. 
 # ## En este punto ballgown no realiza ninguna normalización de los datos. 
@@ -435,10 +443,15 @@ for(i in 1:number.samples)
 
 write(x = "\n",file=output.file, append=T)
 write(x = "\n",file=output.file, append=T)
-write(x="[**Click here to download a matrix in tab-separated value format containing 
-estimates for gene expression computed from your RNA-seq data measured as FPKM. Rows represent genes
+
+if (mapper == "hisat2")
+{
+   write(x="[**Click here to download a matrix in tab-separated value format containing 
+   estimates for gene expression computed from your RNA-seq data measured as FPKM. Rows represent genes
       and columns conditions.**](./gene_expression.tsv)", file=output.file, append=T)
-write(x = "\n",file=output.file, append=T)
+   write(x = "\n",file=output.file, append=T)
+}
+
 write(x="[**Click here to download a matrix in tab-separated value format containing 
 estimates for gene expression computed from your RNA-seq data measured as TPM. Rows represent genes
       and columns conditions.**](./transcript_count_matrix.csv)", file=output.file, append=T)
