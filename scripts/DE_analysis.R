@@ -46,6 +46,10 @@ library(ballgown)
 library(genefilter)
 library(FactoMineR)
 library("factoextra")
+library(ggplot2)
+# library(MetBrewer)
+library(cowplot)
+# library(plotly)
 
 # Load experimental design
 experimental.design <- read.csv("experimental_design.csv",as.is=T)
@@ -134,32 +138,116 @@ if (mapper == "hisat2")
 
 
 ## Scatter plots 
-png(file="../results/scatter_plots.png",width = 1500,height = 1500)
-par(mfrow=c(number.samples,number.samples))
 
-for(i in 1:number.samples)
+scatterplot_function<-function(x,y)
 {
-  for(j in 1:number.samples)
-  {
-    plot(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1),pch=19,
-         cex=0.7,xlab=sample.labels[i],ylab=sample.labels[j],cex.lab=1.5)
-    lines(x=c(-10,100),y=c(-10,100),col="red",lwd=2)
-    text(x = 0, y =max(c(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)))-2,pos = 4,
-         paste0(round(x = 100*cor(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)),digits=2),"%"),cex=2)
-  }
+  print(ggplot(as.data.frame(log2(gene.expression)+1), 
+         aes(x=log2(gene.expression[,x])+1, y=log2(gene.expression[,y])+1)) + 
+    #geom_point(size=1, color=met.brewer("Cassatt2",8) [6],
+    geom_point(size=1, color="#7fa074")+
+               #aes(text= paste0("</br> X: ",round(log2(gene.expression[,x])+1,digits = 5),
+               #                 "</br> Y: ", round(log2(gene.expression[,y])+1,digits = 5)))) +
+    xlim(0,NA) +
+    ylim(0,NA) +
+    geom_smooth(method=lm,color="darkgreen",size=0.7) +
+    theme(panel.background = element_rect(fill = "white"),
+          panel.grid.major = element_line(colour = "white"),
+          panel.grid.minor = element_line(colour = "white"),
+          axis.line.x.bottom = element_line(color = 'black'),
+          axis.line.y.left   = element_line(color = 'black'),
+          panel.border = element_blank(),
+          plot.title = element_text(hjust = 0.5, size = 13)) +
+    xlab(sample.labels[x]) +
+    ylab(sample.labels[y]) +
+    annotate(geom = "text", x = 1.5, y = max(c(log2(gene.expression[,x]+1),log2(gene.expression[,y]+1)))-2, 
+             label = paste(c(round(100*cor(gene.expression[,x],
+                                           gene.expression[,y]),
+                                   digits = 2),
+                             "%"), collapse=""),size=4))
 }
+
+png(file="../results/scatter_plots.png",width = 1500,height = 1500)
+#par(mfrow=c(number.samples,number.samples))
+
+#for(i in 1:number.samples)
+#{
+#  for(j in 1:number.samples)
+#  {
+#    plot(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1),pch=19,
+#         cex=0.7,xlab=sample.labels[i],ylab=sample.labels[j],cex.lab=1.5)
+#    lines(x=c(-10,100),y=c(-10,100),col="red",lwd=2)
+#    text(x = 0, y =max(c(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)))-2,pos = 4,
+#         paste0(round(x = 100*cor(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)),digits=2),"%"),cex=2)
+#  }
+#}
+
+scatterplot_function(2,4)
+
 dev.off()
+
+# myPlots<- list()
+
+# for(i in 1:number.samples)
+#  {
+#    for(j in 1:number.samples)
+#    {
+#      myPlots<-c(myPlots,list())
+#    }
+#}
+
+#print(ggarrange(plotlist = myPlots, nrow = number.samples, ncol = number.samples))
+
+#dev.off()
 
 ## Boxplot before normalization
 if(mapper == "hisat2")
 {
   png(filename = "../results/boxplot_before_normalization.png")
-boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,las=2,outline=F)
+# boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,las=2,outline=F)
+  print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
+        stat_boxplot(geom = 'errorbar') +
+        geom_boxplot(outlier.shape = NA) + 
+        scale_y_continuous(limits = quantile(log2(gene.expression[,1]+1), c(0.1, 0.9))) +
+        # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+        scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+        theme(legend.position="none", axis.text.x = element_text(angle = 90),
+              # plot.title = element_text(hjust = 0.5, size = 13),
+              panel.background = element_rect(fill = "white"),
+              axis.title = element_text(size = 11),
+              axis.text = element_text(size=9),
+              panel.grid.major = element_line(colour = "white"),
+              panel.grid.minor = element_line(colour = "white"),
+              axis.line.x.bottom = element_line(color = 'black'),
+              axis.line.y.left   = element_line(color = 'black'),
+              panel.border = element_blank()
+        )  +
+        xlab("Samples") +
+        ylab("Gene Expression"))
+
 dev.off()
 }else if (mapper == "kallisto")
 {
   png(filename = "../results/boxplot_before_normalization.png")
-  boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,las=2,outline=F)
+  # boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,las=2,outline=F)
+  print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
+          stat_boxplot(geom = 'errorbar') +
+          geom_boxplot(outlier.shape = NA) + 
+          scale_y_continuous(limits = quantile(log2(gene.expression[,1]+1), c(0.1, 0.9))) +
+          scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+          # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+          theme(legend.position="none", axis.text.x = element_text(angle = 90), 
+                plot.title = element_text(hjust = 0.5, size = 13), 
+                panel.background = element_rect(fill = "white"),
+                axis.title = element_text(size = 11),
+                axis.text = element_text(size=9),
+                panel.grid.major = element_line(colour = "white"),
+                panel.grid.minor = element_line(colour = "white"),
+                axis.line.x.bottom = element_line(color = 'black'),
+                axis.line.y.left   = element_line(color = 'black'),
+                panel.border = element_blank()
+          )  +
+          xlab("Samples") +
+          ylab("TPM"))
   dev.off()
 }
 
@@ -211,12 +299,50 @@ log.gene.expression <- log2(gene.expression+1)
 if (mapper == "hisat2")
 {
    png(filename = "../results/boxplot_after_normalization.png")
-   boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+   # boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+   print(ggplot(stack(as.data.frame(log.gene.expression)), aes(x = ind, y = values, fill = ind)) +
+     stat_boxplot(geom = 'errorbar') +
+     geom_boxplot(outlier.shape = NA) + 
+     scale_y_continuous(limits = quantile(log.gene.expression[,1], c(0.1, 0.9))) +
+       scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+     # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+     theme(legend.position="none", axis.text.x = element_text(angle = 90), 
+           plot.title = element_text(hjust = 0.5, size = 13), 
+           panel.background = element_rect(fill = "white"),
+           axis.title = element_text(size = 11),
+           axis.text = element_text(size=9),
+           panel.grid.major = element_line(colour = "white"),
+           panel.grid.minor = element_line(colour = "white"),
+           axis.line.x.bottom = element_line(color = 'black'),
+           axis.line.y.left   = element_line(color = 'black'),
+           panel.border = element_blank()
+     ) +
+     xlab("Samples") +
+     ylab("log2(FPKM + 1)"))
    dev.off()
 } else if (mapper == "kallisto")
 {
    png(filename = "../results/boxplot_after_normalization.png")
-   boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+   # boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
+   print(ggplot(stack(as.data.frame(log.gene.expression)), aes(x = ind, y = values, fill = ind)) +
+           stat_boxplot(geom = 'errorbar') +
+           geom_boxplot(outlier.shape = NA) + 
+           scale_y_continuous(limits = quantile(log.gene.expression[,1], c(0.1, 0.9))) +
+           scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+           # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+           theme(legend.position="none", axis.text.x = element_text(angle = 90), 
+                 plot.title = element_text(hjust = 0.5, size = 13), 
+                 panel.background = element_rect(fill = "white"),
+                 axis.title = element_text(size = 11),
+                 axis.text = element_text(size=9),
+                 panel.grid.major = element_line(colour = "white"),
+                 panel.grid.minor = element_line(colour = "white"),
+                 axis.line.x.bottom = element_line(color = 'black'),
+                 axis.line.y.left   = element_line(color = 'black'),
+                 panel.border = element_blank()
+           ) +
+           xlab("Samples") +
+           ylab("log2(TPM + 1)"))
    dev.off()
 }
 
@@ -277,7 +403,15 @@ rownames(mean.expression) <- names(control)
 #head(mean.expression)
 
 ## Previsualizamos el efecto de la mutación en un scatterplot.
-plot(control,experimental,pch=19,cex=0.7,xlab=control.condition,ylab=experimental.condition,cex.lab=1.25)
+# plot(control,experimental,pch=19,cex=0.7,xlab=control.condition,ylab=experimental.condition,cex.lab=1.25)
+
+# print(ggplot(mean.expression,aes(x=control.condition,y=experimental.condition)) + 
+#  geom_point(size=1,colour= "#924099") +
+  # geom_point(size=1,colour=c(met.brewer("Klimt",1))) +
+#  xlab(control.condition) +
+#  ylab(experimental.condition) +
+#  theme(axis.title = element_text(size = 15)))
+
 
 ##El paquete **limma** (Linear Models for Microarray Analysis) proporciona las 
 ##funciones necesarias para determinar los genes expresados de forma 
@@ -323,18 +457,68 @@ length(repressed.genes)
 write(x = activated.genes, file = "../results/activated_genes.txt")
 write(x = repressed.genes, file = "../results/repressed_genes.txt")
 
+# Scatterplot DEGs
 png(filename = "../results/scatter_plot_control_vs_experimental.png")
-plot(control,experimental,pch=19,cex=0.7,col="grey",xlab=control.condition,ylab=experimental.condition,cex.lab=1.25)
-points(control[activated.genes],experimental[activated.genes],pch=19,cex=0.7,col="red")
-points(control[repressed.genes],experimental[repressed.genes],pch=19,cex=0.7,col="blue")
+#  plot(control,experimental,pch=19,cex=0.7,col="grey",xlab=control.condition,ylab=experimental.condition,cex.lab=1.25)
+#  points(control[activated.genes],experimental[activated.genes],pch=19,cex=0.7,col="red")
+#  points(control[repressed.genes],experimental[repressed.genes],pch=19,cex=0.7,col="blue")
+
+mean.expression<-as.data.frame(mean.expression)
+# head(mean.expression)
+mean.expression[,"gene_type"] <- "ns" 
+
+mean.expression[which(mean.expression$high_light - mean.expression$control > fc.threshold),"gene_type"] <- "activado"
+mean.expression[which(mean.expression$high_light - mean.expression$control < -(fc.threshold)),"gene_type"] <- "reprimido"
+
+volcol <- c("#dd5129", "#0f7ba2","grey33")
+names(volcol) <- c("activado","reprimido","ns")
+
+print(ggplot(mean.expression, aes(x=control, y=experimental, color=gene_type)) + 
+  geom_point() +
+  scale_color_manual(values=volcol) +
+  theme(legend.position="none", axis.text.x = element_text(angle = 90), 
+        plot.title = element_text(hjust = 0.5, size = 13), 
+        panel.background = element_rect(fill = "white"),
+        axis.title = element_text(size = 11),
+        axis.text = element_text(size=9),
+        panel.grid.major = element_line(colour = "white"),
+        panel.grid.minor = element_line(colour = "white"),
+        axis.line.x.bottom = element_line(color = 'black'),
+        axis.line.y.left   = element_line(color = 'black'),
+        panel.border = element_blank()
+  ))
+
 dev.off()
 
 log10.qval <- -log10(q.values)
 
 png(filename = "../results/volcano_plot.png")
-plot(fold.change,log10.qval,pch=19,cex=0.7,col="grey", xlab="Fold Change", ylab="-log10(q-value)",cex.lab=1.5)
-points(fold.change[activated.genes],log10.qval[activated.genes],cex=0.7,col="red",pch=19)
-points(fold.change[repressed.genes],log10.qval[repressed.genes],cex=0.7,col="blue",pch=19)
+# plot(fold.change,log10.qval,pch=19,cex=0.7,col="grey", xlab="Fold Change", ylab="-log10(q-value)",cex.lab=1.5)
+# points(fold.change[activated.genes],log10.qval[activated.genes],cex=0.7,col="red",pch=19)
+# points(fold.change[repressed.genes],log10.qval[repressed.genes],cex=0.7,col="blue",pch=19)
+
+de.results[,"gene_type"] <- "ns"
+de.results[,"gene_name"] <- rownames(de.results)
+de.results[which(de.results$logFC > fc.threshold & de.results$adj.P.Val < q.val.threshold),"gene_type"] <- "activado"
+de.results[which(de.results$logFC< -fc.threshold & de.results$adj.P.Val < q.val.threshold),"gene_type"] <- "reprimido"
+
+ volcol <- c("#dd5129", "#0f7ba2","grey33")
+# volcol <- c(met.brewer("Egypt",3)[1], met.brewer("Egypt",3)[2],"grey33")
+ names(volcol) <- c("activado","reprimido","ns")
+
+print(ggplot(as.data.frame(de.results), aes(x=logFC, y=-log10(adj.P.Val),
+                                                   color=gene_type)) +
+  geom_point(size = 1) +
+   scale_colour_manual(values = volcol) + 
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(colour = "white"),
+        panel.grid.minor = element_line(colour = "white"),
+        axis.line.x.bottom = element_line(color = 'black'),
+        axis.line.y.left   = element_line(color = 'black'),
+        panel.border = element_blank(),
+        plot.title = element_text(hjust = 0.5,size = 19)))
+
 dev.off()
 
 ## Código para desarrollar una función gráfico de barras
