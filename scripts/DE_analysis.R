@@ -47,9 +47,11 @@ library(genefilter)
 library(FactoMineR)
 library("factoextra")
 library(ggplot2)
-# library(MetBrewer)
+library(MetBrewer)
 library(cowplot)
-# library(plotly)
+library(plotly)
+library(ggpubr)
+library(htmltools)
 
 # Load experimental design
 experimental.design <- read.csv("experimental_design.csv",as.is=T)
@@ -143,8 +145,8 @@ scatterplot_function<-function(x,y)
 {
   print(ggplot(as.data.frame(log2(gene.expression)+1), 
          aes(x=log2(gene.expression[,x])+1, y=log2(gene.expression[,y])+1)) + 
-    #geom_point(size=1, color=met.brewer("Cassatt2",8) [6],
-    geom_point(size=1, color="#7fa074")+
+    geom_point(size=1, color=met.brewer("Cassatt2",8) [6]) +
+    # geom_point(size=1, color="#7fa074")+
                #aes(text= paste0("</br> X: ",round(log2(gene.expression[,x])+1,digits = 5),
                #                 "</br> Y: ", round(log2(gene.expression[,y])+1,digits = 5)))) +
     xlim(0,NA) +
@@ -180,36 +182,33 @@ png(file="../results/scatter_plots.png",width = 1500,height = 1500)
 #         paste0(round(x = 100*cor(log2(gene.expression[,i]+1),log2(gene.expression[,j]+1)),digits=2),"%"),cex=2)
 #  }
 #}
+# dev.off()
 
-scatterplot_function(2,4)
+myPlots<- list()
+
+for(i in 1:number.samples)
+  {
+    for(j in 1:number.samples)
+    {
+      myPlots<-c(myPlots,list(scatterplot_function(i,j)))
+    }
+}
+
+ggarrange(plotlist = myPlots, nrow = number.samples, ncol = number.samples)
 
 dev.off()
-
-# myPlots<- list()
-
-# for(i in 1:number.samples)
-#  {
-#    for(j in 1:number.samples)
-#    {
-#      myPlots<-c(myPlots,list())
-#    }
-#}
-
-#print(ggarrange(plotlist = myPlots, nrow = number.samples, ncol = number.samples))
-
-#dev.off()
 
 ## Boxplot before normalization
 if(mapper == "hisat2")
 {
   png(filename = "../results/boxplot_before_normalization.png")
 # boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(FPKM + 1)",cex.lab=1.5,las=2,outline=F)
-  print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
+ print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
         stat_boxplot(geom = 'errorbar') +
         geom_boxplot(outlier.shape = NA) + 
         scale_y_continuous(limits = quantile(log2(gene.expression[,1]+1), c(0.1, 0.9))) +
-        # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
-        scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+        scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+        # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
         theme(legend.position="none", axis.text.x = element_text(angle = 90),
               # plot.title = element_text(hjust = 0.5, size = 13),
               panel.background = element_rect(fill = "white"),
@@ -224,17 +223,41 @@ if(mapper == "hisat2")
         xlab("Samples") +
         ylab("Gene Expression"))
 
-dev.off()
+ dev.off()
+
+boxplot_before <- print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
+        geom_boxplot(outlier.shape = NA) +
+        scale_y_continuous(limits = quantile(log2(gene.expression[,1]+1), c(0.1, 0.9))) +
+        scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+        # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+        theme(legend.position="none", axis.text.x = element_text(angle = 90),
+              # plot.title = element_text(hjust = 0.5, size = 13),
+              panel.background = element_rect(fill = "white"),
+              axis.title = element_text(size = 11),
+              axis.text = element_text(size=9),
+              panel.grid.major = element_line(colour = "white"),
+              panel.grid.minor = element_line(colour = "white"),
+              axis.line.x.bottom = element_line(color = 'black'),
+              axis.line.y.left   = element_line(color = 'black'),
+              panel.border = element_blank()
+        )  +
+        xlab("Samples") +
+        ylab("Gene Expression"))
+
+
+	 boxplot_before<-ggplotly(boxplot_before)
+         htmlwidgets::saveWidget(as_widget(boxplot_before), "../results/boxplot_before.html")
+
 }else if (mapper == "kallisto")
 {
   png(filename = "../results/boxplot_before_normalization.png")
   # boxplot(log2(gene.expression + 1),col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,las=2,outline=F)
-  print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
+     print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
           stat_boxplot(geom = 'errorbar') +
           geom_boxplot(outlier.shape = NA) + 
           scale_y_continuous(limits = quantile(log2(gene.expression[,1]+1), c(0.1, 0.9))) +
-          scale_fill_manual(values=rainbow(ncol(gene.expression))) +
-          # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+          # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+          scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
           theme(legend.position="none", axis.text.x = element_text(angle = 90), 
                 plot.title = element_text(hjust = 0.5, size = 13), 
                 panel.background = element_rect(fill = "white"),
@@ -248,7 +271,32 @@ dev.off()
           )  +
           xlab("Samples") +
           ylab("TPM"))
+
   dev.off()
+
+boxplot_before <- print(ggplot(stack(as.data.frame(log2(gene.expression+1))), aes(x = ind, y = values, fill = ind)) +
+        # stat_boxplot(geom = 'errorbar') +
+        geom_boxplot(outlier.shape = NA) +
+        scale_y_continuous(limits = quantile(log2(gene.expression[,1]+1), c(0.1, 0.9))) +
+        scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+        # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+        theme(legend.position="none", axis.text.x = element_text(angle = 90),
+              # plot.title = element_text(hjust = 0.5, size = 13),
+              panel.background = element_rect(fill = "white"),
+              axis.title = element_text(size = 11),
+              axis.text = element_text(size=9),
+              panel.grid.major = element_line(colour = "white"),
+              panel.grid.minor = element_line(colour = "white"),
+              axis.line.x.bottom = element_line(color = 'black'),
+              axis.line.y.left   = element_line(color = 'black'),
+              panel.border = element_blank()
+        )  +
+        xlab("Samples") +
+        ylab("Gene Expression"))
+
+         boxplot_before<-ggplotly(boxplot_before)
+         htmlwidgets::saveWidget(as_widget(boxplot_before), "../results/boxplot_before.html")
+
 }
 
 
@@ -304,8 +352,8 @@ if (mapper == "hisat2")
      stat_boxplot(geom = 'errorbar') +
      geom_boxplot(outlier.shape = NA) + 
      scale_y_continuous(limits = quantile(log.gene.expression[,1], c(0.1, 0.9))) +
-       scale_fill_manual(values=rainbow(ncol(gene.expression))) +
-     # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+       # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+     scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
      theme(legend.position="none", axis.text.x = element_text(angle = 90), 
            plot.title = element_text(hjust = 0.5, size = 13), 
            panel.background = element_rect(fill = "white"),
@@ -319,17 +367,43 @@ if (mapper == "hisat2")
      ) +
      xlab("Samples") +
      ylab("log2(FPKM + 1)"))
-   dev.off()
+   
+dev.off()
+
+boxplot_after <- print(ggplot(stack(as.data.frame(log.gene.expression)), aes(x = ind, y = values, fill = ind)) +
+     geom_boxplot(outlier.shape = NA) +
+     scale_y_continuous(limits = quantile(log.gene.expression[,1], c(0.1, 0.9))) +
+       # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+     scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+     theme(legend.position="none", axis.text.x = element_text(angle = 90),
+           plot.title = element_text(hjust = 0.5, size = 13),
+           panel.background = element_rect(fill = "white"),
+           axis.title = element_text(size = 11),
+           axis.text = element_text(size=9),
+           panel.grid.major = element_line(colour = "white"),
+           panel.grid.minor = element_line(colour = "white"),
+           axis.line.x.bottom = element_line(color = 'black'),
+           axis.line.y.left   = element_line(color = 'black'),
+           panel.border = element_blank()
+     ) +
+     xlab("Samples") +
+     ylab("log2(FPKM + 1)"))
+
+
+  boxplot_after <- ggplotly(boxplot_after)
+  htmlwidgets::saveWidget(as.widget(boxplot_after), "../results/boxplot_after.html")
+
+
 } else if (mapper == "kallisto")
 {
    png(filename = "../results/boxplot_after_normalization.png")
    # boxplot(log.gene.expression,col=rainbow(ncol(gene.expression)),ylab="log2(TPM + 1)",cex.lab=1.5,outline=F,las=2,main="Normalized Gene Expression")
-   print(ggplot(stack(as.data.frame(log.gene.expression)), aes(x = ind, y = values, fill = ind)) +
+  print(ggplot(stack(as.data.frame(log.gene.expression)), aes(x = ind, y = values, fill = ind)) +
            stat_boxplot(geom = 'errorbar') +
            geom_boxplot(outlier.shape = NA) + 
            scale_y_continuous(limits = quantile(log.gene.expression[,1], c(0.1, 0.9))) +
-           scale_fill_manual(values=rainbow(ncol(gene.expression))) +
-           # scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+           # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+           scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
            theme(legend.position="none", axis.text.x = element_text(angle = 90), 
                  plot.title = element_text(hjust = 0.5, size = 13), 
                  panel.background = element_rect(fill = "white"),
@@ -344,6 +418,30 @@ if (mapper == "hisat2")
            xlab("Samples") +
            ylab("log2(TPM + 1)"))
    dev.off()
+
+boxplot_after <- print(ggplot(stack(as.data.frame(log.gene.expression)), aes(x = ind, y = values, fill = ind)) +
+     geom_boxplot(outlier.shape = NA) +
+     scale_y_continuous(limits = quantile(log.gene.expression[,1], c(0.1, 0.9))) +
+       # scale_fill_manual(values=rainbow(ncol(gene.expression))) +
+     scale_fill_manual(values=c(met.brewer("Klimt",number.samples))) +
+     theme(legend.position="none", axis.text.x = element_text(angle = 90),
+           plot.title = element_text(hjust = 0.5, size = 13),
+           panel.background = element_rect(fill = "white"),
+           axis.title = element_text(size = 11),
+           axis.text = element_text(size=9),
+           panel.grid.major = element_line(colour = "white"),
+           panel.grid.minor = element_line(colour = "white"),
+           axis.line.x.bottom = element_line(color = 'black'),
+           axis.line.y.left   = element_line(color = 'black'),
+           panel.border = element_blank()
+     ) +
+     xlab("Samples") +
+     ylab("log2(FPKM + 1)"))
+
+
+  boxplot_after <- ggplotly(boxplot_after)
+  htmlwidgets::saveWidget(as.widget(boxplot_after), "../results/boxplot_after.html")
+
 }
 
 ## Alternativamente la normalización se puede realizar con el paquete normalyzer. 
@@ -466,6 +564,8 @@ png(filename = "../results/scatter_plot_control_vs_experimental.png")
 mean.expression<-as.data.frame(mean.expression)
 # head(mean.expression)
 mean.expression[,"gene_type"] <- "ns" 
+mean.expression[,"gene_name"] <- rownames(mean.expression)
+
 
 mean.expression[which(mean.expression$high_light - mean.expression$control > fc.threshold),"gene_type"] <- "activado"
 mean.expression[which(mean.expression$high_light - mean.expression$control < -(fc.threshold)),"gene_type"] <- "reprimido"
@@ -490,6 +590,30 @@ print(ggplot(mean.expression, aes(x=control, y=experimental, color=gene_type)) +
 
 dev.off()
 
+scatterplot_DEG <- ggplot(mean.expression, aes(x=control, y=experimental, color=gene_type,
+                                               text= paste0("</br> Gen: " ,gene_name))) + 
+  geom_point(size=1) +
+  scale_color_manual(values=volcol) +
+  theme(legend.position="none", axis.text.x = element_text(angle = 90), 
+        plot.title = element_text(hjust = 0.5, size = 13), 
+        panel.background = element_rect(fill = "white"),
+        axis.title = element_text(size = 11),
+        axis.text = element_text(size=9),
+        panel.grid.major = element_line(colour = "white"),
+        panel.grid.minor = element_line(colour = "white"),
+        axis.line.x.bottom = element_line(color = 'black'),
+        axis.line.y.left   = element_line(color = 'black'),
+        panel.border = element_blank()
+  )
+
+scatterplot_DEG <- ggplotly(scatterplot_DEG,x = ~control, y = ~experimental,
+                            tooltip = "text",
+                            width = 550, height = 600)
+
+htmlwidgets::saveWidget(as_widget(scatterplot_DEG), "../results/scatterplot_DEG.html")
+
+
+
 log10.qval <- -log10(q.values)
 
 png(filename = "../results/volcano_plot.png")
@@ -502,8 +626,8 @@ de.results[,"gene_name"] <- rownames(de.results)
 de.results[which(de.results$logFC > fc.threshold & de.results$adj.P.Val < q.val.threshold),"gene_type"] <- "activado"
 de.results[which(de.results$logFC< -fc.threshold & de.results$adj.P.Val < q.val.threshold),"gene_type"] <- "reprimido"
 
- volcol <- c("#dd5129", "#0f7ba2","grey33")
-# volcol <- c(met.brewer("Egypt",3)[1], met.brewer("Egypt",3)[2],"grey33")
+# volcol <- c("#dd5129", "#0f7ba2","grey33")
+volcol <- c(met.brewer("Egypt",3)[1], met.brewer("Egypt",3)[2],"grey33")
  names(volcol) <- c("activado","reprimido","ns")
 
 print(ggplot(as.data.frame(de.results), aes(x=logFC, y=-log10(adj.P.Val),
@@ -520,6 +644,27 @@ print(ggplot(as.data.frame(de.results), aes(x=logFC, y=-log10(adj.P.Val),
         plot.title = element_text(hjust = 0.5,size = 19)))
 
 dev.off()
+
+volcano_DEG<-print(ggplot(as.data.frame(de.results), aes(x=logFC, y=-log10(adj.P.Val),
+                                                   color=gene_type,text= paste0("</br> Gen: " ,gene_name))) +
+  geom_point(size = 1) +
+  scale_colour_manual(values = volcol) + 
+  theme(legend.position = "none",
+        panel.background = element_rect(fill = "white"),
+        panel.grid.major = element_line(colour = "white"),
+        panel.grid.minor = element_line(colour = "white"),
+        axis.line.x.bottom = element_line(color = 'black'),
+        axis.line.y.left   = element_line(color = 'black'),
+        panel.border = element_blank(),
+        plot.title = element_text(hjust = 0.5,size = 19)))
+
+volcano_DEG<-ggplotly(volcano_DEG,x = ~logFC, y = ~adj.P.Value,
+                  tooltip = "text",
+                  width = 450, height = 500)
+
+htmlwidgets::saveWidget(as_widget(volcano_DEG), "../results/volcano_DEG.html")
+
+
 
 ## Código para desarrollar una función gráfico de barras
 if(length(activated.genes) > 2)
@@ -654,6 +799,10 @@ write(x="The barplot below represents the upper quantile normalized
 write(x = "<center>", file=output.file, append=T)
 write(x = "![Normalized Global Gene Expression](./boxplot_after_normalization.png){ width=50% }", file=output.file, append=T)
 write(x = "</center>", file=output.file, append=T)
+write(x = "[**Click here to explore an interactive plot**](./boxplot_after.html){ width=50% }", file=output.file, append=T)
+write(x = "</center>", file=output.file, append=T)
+
+
 
 ## Principal components analysis
 write(x = "\n", file=output.file, append=T)
@@ -674,6 +823,7 @@ write(x = "<center>", file=output.file, append=T)
 write(x = "![Sample Scatter Plots](./scatter_plots.png){ width=100% }", file=output.file, append=T)
 write(x = "</center>", file=output.file, append=T)
 
+# ## Differential Gene Expression Analysis
 write(x = "## Differential Gene Expression Analysis",file = output.file,append = T)
 
 write(x = paste(c("In this section we present the results from a differential gene expression 
@@ -699,10 +849,20 @@ write(x = paste(c("In this section we present the results from a differential ge
 write(x = "<center>", file=output.file, append=T)
 write(x = "![Scatter Plot](./scatter_plot_control_vs_experimental.png){ width=50% }", file=output.file, append=T)
 write(x = "</center>", file=output.file, append=T)
+write(x = "</center>", file=output.file, append=T)
+write(x = "[**Click here to explore an interactive plot**](./scatterplot_DEG.html){ width=50% }", file=output.file, append=T)
+write(x = "</center>", file=output.file, append=T)
+
+
+
 
 write(x = "<center>", file=output.file, append=T)
 write(x = "![Scatter Plot](./volcano_plot.png){ width=50% }", file=output.file, append=T)
 write(x = "</center>", file=output.file, append=T)
+write(x = "</center>", file=output.file, append=T)
+write(x = "[**Click here to explore an interactive plot**](./volcano_DEG.html){ width=50% }", file=output.file, append=T)
+write(x = "</center>", file=output.file, append=T)
+
 
 number.activated.genes <- length(activated.genes)
 number.repressed.genes <- length(repressed.genes)
